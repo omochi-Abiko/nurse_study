@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-800 font-sans;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* フォーカスリングのアクセシビリティ対応 */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-500;
+  }
+
+  /* スクロールバーのスタイル（控えめ） */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+}
+
+@layer components {
+  /* タップ可能な要素の最小サイズ保証 */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* 画面共通のパディング */
+  .screen-padding {
+    @apply px-4;
+  }
+
+  /* セーフエリア対応のボトムパディング */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 56px);
+  }
+
+  /* ガラスモーフィズム効果 */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  .glass-dark {
+    @apply bg-neutral-900/80 backdrop-blur-md;
+  }
+
+  /* グラデーションテキスト */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500;
+  }
+
+  /* 浮遊シャドウ */
+  .shadow-float {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.08),
+      0 20px 25px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  /* カード用の柔らかいシャドウ */
+  .shadow-soft {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 4px 8px rgba(0, 0, 0, 0.03),
+      0 8px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  /* インタラクティブなカード効果 */
+  .card-interactive {
+    @apply transition-all duration-200;
+  }
+
+  .card-interactive:hover {
+    @apply -translate-y-0.5;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-interactive:active {
+    @apply scale-[0.98];
+  }
+}
+
+@layer utilities {
+  /* reduce-motion対応 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
