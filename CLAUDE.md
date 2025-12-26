@@ -1,7 +1,8 @@
 # CLAUDE.md - NurseStudy Project Guide
 
 ## Project Overview
-NurseStudy（ゴーストレディ）は看護学生向けの国家試験対策PWAアプリです。
+NurseStudy（ゴーストレディ）は看護学生の毎日をサポートするPWAアプリです。
+実習サポート・国試対策・セルフケアをひとつのアプリで提供します。
 
 ## Tech Stack
 - **Framework**: Next.js 15 (App Router)
