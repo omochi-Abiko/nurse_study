@@ -8,7 +8,8 @@ import { SwipeCard } from "@/components/ui/swipe-card";
 import { Button } from "@/components/ui/button";
 import { WeakCategoryAlert, CategoryStatsList } from "@/components/ui/category-badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { RefreshCw, Brain, BarChart3, X, Loader2 } from "lucide-react";
+import { RefreshCw, Brain, BarChart3, X, Loader2, Table2, Layers, Trash2, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ReviewPage() {
   // API hooks
@@ -24,6 +25,10 @@ export default function ReviewPage() {
   const [completed, setCompleted] = React.useState(false);
   const [showStats, setShowStats] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState<string | null>(null);
+  // 表示モード（カードめくり / テーブル一覧）
+  const [viewMode, setViewMode] = React.useState<"swipe" | "table">("swipe");
+  // テーブルで解説を開いている問題ID
+  const [expandedId, setExpandedId] = React.useState<string | null>(null);
 
   const categoryStats = getCategoryStats();
   const weakCategories = getWeakCategories();
@@ -125,6 +130,139 @@ export default function ReviewPage() {
     );
   }
 
+  // テーブル（一覧）表示
+  if (viewMode === "table") {
+    return (
+      <div className="min-h-screen flex flex-col px-4 pt-6 pb-24">
+        {/* ヘッダー */}
+        <header className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-neutral-900">復習</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode("swipe")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-neutral-600 hover:bg-neutral-100 transition-colors"
+              aria-label="カード表示に切り替え"
+            >
+              <Layers className="h-4 w-4" />
+              カード
+            </button>
+            <span className="text-sm text-neutral-500">{questions.length}問</span>
+          </div>
+        </header>
+
+        {/* カテゴリフィルター表示 */}
+        {filterCategory && (
+          <div className="flex items-center gap-2 mb-4 p-3 bg-primary-50 rounded-xl">
+            <span className="text-sm text-primary-700 flex-1">
+              「{filterCategory}」で絞り込み中
+            </span>
+            <button
+              onClick={clearFilter}
+              className="p-1 text-primary-500 hover:text-primary-700 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* テーブル本体（横スクロール対応） */}
+        <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-card">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-neutral-50 text-neutral-500 text-xs">
+                <th className="text-left font-medium px-3 py-2.5 min-w-[180px]">問題</th>
+                <th className="text-left font-medium px-3 py-2.5 whitespace-nowrap">分野</th>
+                <th className="text-left font-medium px-3 py-2.5 whitespace-nowrap">正解</th>
+                <th className="text-center font-medium px-2 py-2.5 whitespace-nowrap">回数</th>
+                <th className="px-2 py-2.5" aria-label="操作" />
+              </tr>
+            </thead>
+            <tbody>
+              {questions.map(
+                (item: {
+                  questionId: string;
+                  reviewCount: number;
+                  question: {
+                    text: string;
+                    category: string;
+                    options?: string[];
+                    correctIndex: number;
+                    explanation: string;
+                  } | null;
+                }) => {
+                  const q = item.question;
+                  if (!q) return null;
+                  const isExpanded = expandedId === item.questionId;
+                  const correctLabel = String.fromCharCode(65 + q.correctIndex);
+                  const correctText = q.options?.[q.correctIndex] ?? "";
+                  return (
+                    <React.Fragment key={item.questionId}>
+                      <tr
+                        onClick={() =>
+                          setExpandedId(isExpanded ? null : item.questionId)
+                        }
+                        className="border-t border-neutral-100 cursor-pointer hover:bg-neutral-50 transition-colors align-top"
+                      >
+                        <td className="px-3 py-3 text-neutral-800">
+                          <div className="flex items-start gap-1.5">
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 text-neutral-400 mt-0.5 flex-shrink-0 transition-transform",
+                                isExpanded && "rotate-180"
+                              )}
+                            />
+                            <span>{q.text}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap">
+                          <span className="text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
+                            {q.category}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-success-700 font-medium whitespace-nowrap">
+                          {correctLabel}. {correctText}
+                        </td>
+                        <td className="px-2 py-3 text-center text-neutral-500 whitespace-nowrap">
+                          {item.reviewCount}
+                        </td>
+                        <td className="px-2 py-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeWeakQuestion(item.questionId);
+                            }}
+                            className="p-1.5 text-neutral-400 hover:text-error-500 transition-colors"
+                            aria-label="苦手リストから削除"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="bg-neutral-50/60">
+                          <td colSpan={5} className="px-4 py-3">
+                            <p className="text-xs font-medium text-neutral-500 mb-1">解説</p>
+                            <p className="text-sm text-neutral-700 leading-relaxed">
+                              {q.explanation}
+                            </p>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                }
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-center text-xs text-neutral-400 mt-3">
+          行をタップで解説を表示・ゴミ箱で苦手から削除
+        </p>
+      </div>
+    );
+  }
+
   // 完了画面
   if (completed) {
     return (
@@ -150,6 +288,14 @@ export default function ReviewPage() {
       <header className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-neutral-900">復習</h1>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode("table")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-neutral-600 hover:bg-neutral-100 transition-colors"
+            aria-label="一覧（テーブル）表示に切り替え"
+          >
+            <Table2 className="h-4 w-4" />
+            一覧
+          </button>
           <button
             onClick={() => setShowStats(true)}
             className="p-2 text-neutral-500 hover:text-neutral-700 transition-colors rounded-lg hover:bg-neutral-100"
