@@ -2,6 +2,7 @@ import { Question, StudentGrade } from "@/types";
 
 // カテゴリ一覧
 export const questionCategories = [
+  "解剖学（1年生）",
   "人体の構造と機能",
   "疾病の成り立ち",
   "健康支援と社会保障",
@@ -18,9 +19,9 @@ export const questionCategories = [
 
 // 学年別カテゴリマッピング
 export const gradeCategories: Record<StudentGrade, readonly string[]> = {
-  1: ["人体の構造と機能", "基礎看護学", "必修問題"],
-  2: ["人体の構造と機能", "疾病の成り立ち", "健康支援と社会保障", "基礎看護学", "必修問題"],
-  3: ["人体の構造と機能", "疾病の成り立ち", "健康支援と社会保障", "基礎看護学", "成人看護学", "老年看護学", "小児看護学", "母性看護学", "必修問題"],
+  1: ["解剖学（1年生）", "人体の構造と機能", "基礎看護学", "必修問題"],
+  2: ["解剖学（1年生）", "人体の構造と機能", "疾病の成り立ち", "健康支援と社会保障", "基礎看護学", "必修問題"],
+  3: ["解剖学（1年生）", "人体の構造と機能", "疾病の成り立ち", "健康支援と社会保障", "基礎看護学", "成人看護学", "老年看護学", "小児看護学", "母性看護学", "必修問題"],
   4: questionCategories, // 全カテゴリ
 };
 
@@ -1010,7 +1011,7 @@ export const questions: Question[] = [
     options: ["ミトコンドリア", "核", "リボソーム", "細胞膜"],
     correctIndex: 1,
     explanation: "正解は「核」。遺伝情報であるDNAは核の中に収められています。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1020,7 +1021,7 @@ export const questions: Question[] = [
     options: ["リン脂質が二重層を形成し、親水性頭部が外側を向く", "リン脂質が単層を形成し、疎水性尾部が外側を向く", "セルロースを主成分とする厚い壁構造", "タンパク質のみで構成される単層構造"],
     correctIndex: 0,
     explanation: "正解は「リン脂質が二重層を形成し、親水性頭部が外側を向く」。細胞膜はリン脂質の二重層で、親水性の頭部が水に面した内外側を、疎水性の尾部が内側を向きます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1030,7 +1031,7 @@ export const questions: Question[] = [
     options: ["単層円柱上皮", "重層扁平上皮", "移行上皮（尿路上皮）", "単層扁平上皮"],
     correctIndex: 2,
     explanation: "正解は「移行上皮（尿路上皮）」。尿路（腎盂〜膀胱）は伸び縮みする移行上皮（尿路上皮）で覆われています。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1040,7 +1041,7 @@ export const questions: Question[] = [
     options: ["泌尿器系", "内分泌系", "循環器系", "消化器系"],
     correctIndex: 3,
     explanation: "正解は「消化器系」。胆のうは胆汁をためる消化器系の器官です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1050,7 +1051,7 @@ export const questions: Question[] = [
     options: ["心筋", "骨格筋", "血管壁の平滑筋", "消化管の平滑筋"],
     correctIndex: 1,
     explanation: "正解は「骨格筋」。骨格筋は自分の意思で動かせる随意筋。心筋・平滑筋は不随意筋です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1060,7 +1061,7 @@ export const questions: Question[] = [
     options: ["遺伝情報を保存する", "タンパク質を合成する", "動力源（ATP産生）に相当する", "不要物を分解する"],
     correctIndex: 2,
     explanation: "正解は「動力源（ATP産生）に相当する」。ミトコンドリアはATPを産生する、細胞のエネルギー工場です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1070,7 +1071,7 @@ export const questions: Question[] = [
     options: ["心臓・気管支・肺", "心臓・血管・リンパ管", "腎臓・膀胱・尿管", "胃・腸・肝臓"],
     correctIndex: 1,
     explanation: "正解は「心臓・血管・リンパ管」。循環器系は心臓・血管・リンパ管から構成されます。気管支や肺は呼吸器系です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1080,7 +1081,7 @@ export const questions: Question[] = [
     options: ["弾性線維", "ケラチン", "平滑筋線維", "膠原線維"],
     correctIndex: 3,
     explanation: "正解は「膠原線維」。腱の主成分は膠原線維（コラーゲン）です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1090,7 +1091,7 @@ export const questions: Question[] = [
     options: ["緻密骨", "骨膜", "海綿骨", "関節軟骨"],
     correctIndex: 2,
     explanation: "正解は「海綿骨」。骨髄は海綿骨の骨梁のすき間や髄腔に存在します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1100,7 +1101,7 @@ export const questions: Question[] = [
     options: ["収縮力が弱く、自律神経に支配される", "収縮力が強く、随意的に制御される", "骨格に付着し、関節運動を行う", "横紋構造をもち疲労しやすい"],
     correctIndex: 0,
     explanation: "正解は「収縮力が弱く、自律神経に支配される」。平滑筋は不随意筋で、自律神経に支配され、収縮はゆるやかです。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（細胞・組織）",
   },
   {
@@ -1110,7 +1111,7 @@ export const questions: Question[] = [
     options: ["2本", "23本", "1本", "46本"],
     correctIndex: 2,
     explanation: "正解は「1本」。生殖細胞は減数分裂で染色体数が半分になり、性染色体は1本になります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1120,7 +1121,7 @@ export const questions: Question[] = [
     options: ["卵巣", "卵管采", "子宮腔", "卵管膨大部"],
     correctIndex: 3,
     explanation: "正解は「卵管膨大部」。受精は通常、卵管膨大部で起こります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1130,7 +1131,7 @@ export const questions: Question[] = [
     options: ["筋肉・骨格・血液", "表皮・神経・感覚器", "消化管上皮・肝臓・膵臓", "心臓・腎臓"],
     correctIndex: 1,
     explanation: "正解は「表皮・神経・感覚器」。外胚葉からは表皮・神経・感覚器がつくられます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1140,7 +1141,7 @@ export const questions: Question[] = [
     options: ["3日", "6日", "10日", "14日"],
     correctIndex: 1,
     explanation: "正解は「6日」。着床は受精後およそ6〜7日目に起こります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1150,7 +1151,7 @@ export const questions: Question[] = [
     options: ["第8週", "第12週", "第20週", "第30週"],
     correctIndex: 2,
     explanation: "正解は「第20週」。胎動を母体が感じ始めるのは、おおむね妊娠20週前後です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1160,7 +1161,7 @@ export const questions: Question[] = [
     options: ["精巣・精管・前立腺・尿道", "卵管・子宮・尿道・膀胱", "卵巣・卵管・子宮・膣", "卵巣・精管・子宮・膣"],
     correctIndex: 2,
     explanation: "正解は「卵巣・卵管・子宮・膣」。卵巣・卵管・子宮・膣は女性に特有の生殖器です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1170,7 +1171,7 @@ export const questions: Question[] = [
     options: ["セルトリ細胞", "卵胞細胞", "副腎皮質細胞", "精巣ライディッヒ細胞"],
     correctIndex: 3,
     explanation: "正解は「精巣ライディッヒ細胞」。精巣間質のライディッヒ細胞が男性ホルモン（テストステロン）を分泌します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1180,7 +1181,7 @@ export const questions: Question[] = [
     options: ["妊娠8週頃", "受精時", "着床時", "出生時"],
     correctIndex: 1,
     explanation: "正解は「受精時」。性は受精の瞬間、性染色体の組合せで決まります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1190,7 +1191,7 @@ export const questions: Question[] = [
     options: ["膀胱子宮窩", "肝腎陥凹（モリソン窩）", "子宮直腸窩（ダグラス窩）", "腎周囲腔"],
     correctIndex: 2,
     explanation: "正解は「子宮直腸窩（ダグラス窩）」。立位で腹腔内が最も低くなるのは子宮直腸窩（ダグラス窩）で、貯留液がたまりやすい部位です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1200,7 +1201,7 @@ export const questions: Question[] = [
     options: ["妊娠4週", "妊娠9週", "妊娠20週", "妊娠30週"],
     correctIndex: 1,
     explanation: "正解は「妊娠9週」。流産は妊娠初期（特に12週未満）に多くみられます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1210,7 +1211,7 @@ export const questions: Question[] = [
     options: ["卵巣", "腹膜", "子宮頸部", "卵管"],
     correctIndex: 3,
     explanation: "正解は「卵管」。子宮外妊娠の大半は卵管妊娠です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（生殖・発生）",
   },
   {
@@ -1220,7 +1221,7 @@ export const questions: Question[] = [
     options: ["緻密骨", "骨膜", "関節軟骨", "海綿骨/髄腔"],
     correctIndex: 3,
     explanation: "正解は「海綿骨/髄腔」。造血は赤色骨髄で行われ、海綿骨や髄腔に存在します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1230,7 +1231,7 @@ export const questions: Question[] = [
     options: ["骨幹", "骨端", "骨膜", "骨髄腔"],
     correctIndex: 1,
     explanation: "正解は「骨端」。骨端にある骨端軟骨（成長板）が骨の長さの成長を担います。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1240,7 +1241,7 @@ export const questions: Question[] = [
     options: ["破骨細胞", "骨細胞", "骨芽細胞", "軟骨細胞"],
     correctIndex: 2,
     explanation: "正解は「骨芽細胞」。骨芽細胞は骨をつくる細胞。骨を壊すのは破骨細胞です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1250,7 +1251,7 @@ export const questions: Question[] = [
     options: ["蝶番関節", "球関節", "平面関節", "鞍関節"],
     correctIndex: 3,
     explanation: "正解は「鞍関節」。母指の手根中手関節（CM関節）は鞍関節で、対立運動ができます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1260,7 +1261,7 @@ export const questions: Question[] = [
     options: ["月状骨", "舟状骨", "豆状骨", "立方骨"],
     correctIndex: 1,
     explanation: "正解は「舟状骨」。舟状骨は手根骨・足根骨のどちらにも存在します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1270,7 +1271,7 @@ export const questions: Question[] = [
     options: ["側頭骨・頭頂骨", "頬骨・涙骨", "前頭骨・後頭骨・篩骨・蝶形骨", "鼻骨・下鼻甲介"],
     correctIndex: 2,
     explanation: "正解は「前頭骨・後頭骨・篩骨・蝶形骨」。前頭骨・後頭骨・篩骨・蝶形骨は正中にあり1個ずつ。側頭骨・頭頂骨は左右1対です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1280,7 +1281,7 @@ export const questions: Question[] = [
     options: ["頚椎7　胸椎12　腰椎4", "頚椎6　胸椎12　腰椎5", "頚椎8　胸椎12　腰椎5", "頚椎7　胸椎12　腰椎5"],
     correctIndex: 3,
     explanation: "正解は「頚椎7　胸椎12　腰椎5」。頚椎7個・胸椎12個・腰椎5個が基本の椎骨数です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1290,7 +1291,7 @@ export const questions: Question[] = [
     options: ["頭頂骨と後頭骨", "前頭骨と頭頂骨", "前頭骨と側頭骨", "頭頂骨と側頭骨"],
     correctIndex: 1,
     explanation: "正解は「前頭骨と頭頂骨」。大泉門は前頭骨と頭頂骨の間にできる菱形のすき間です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1300,7 +1301,7 @@ export const questions: Question[] = [
     options: ["蝶形骨", "後頭骨", "側頭骨", "頭頂骨"],
     correctIndex: 2,
     explanation: "正解は「側頭骨」。内耳は側頭骨の錐体部に収められています。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（骨格系）",
   },
   {
@@ -1310,7 +1311,7 @@ export const questions: Question[] = [
     options: ["咬筋・側頭筋", "胸鎖乳突筋・僧帽筋", "三角筋・上腕二頭筋", "広背筋・大胸筋"],
     correctIndex: 1,
     explanation: "正解は「胸鎖乳突筋・僧帽筋」。副神経（第Ⅺ脳神経）は胸鎖乳突筋と僧帽筋を支配します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1320,7 +1321,7 @@ export const questions: Question[] = [
     options: ["上腕二頭筋", "上腕筋", "烏口腕筋", "上腕三頭筋"],
     correctIndex: 3,
     explanation: "正解は「上腕三頭筋」。上腕三頭筋は肘関節を伸ばす伸筋です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1330,7 +1331,7 @@ export const questions: Question[] = [
     options: ["内肋間筋・腹直筋", "僧帽筋・広背筋", "外肋間筋・横隔膜", "腹斜筋・大胸筋"],
     correctIndex: 2,
     explanation: "正解は「外肋間筋・横隔膜」。主要な吸気筋は外肋間筋と横隔膜です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1340,7 +1341,7 @@ export const questions: Question[] = [
     options: ["内腹斜筋", "腹横筋", "腹直筋", "外腹斜筋"],
     correctIndex: 3,
     explanation: "正解は「外腹斜筋」。外腹斜筋の腱膜の下縁が鼠径靭帯を形成します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1350,7 +1351,7 @@ export const questions: Question[] = [
     options: ["大腿四頭筋群", "大腿二頭筋・半腱様筋・半膜様筋", "縫工筋・薄筋・恥骨筋", "腓腹筋・ヒラメ筋"],
     correctIndex: 1,
     explanation: "正解は「大腿二頭筋・半腱様筋・半膜様筋」。ハムストリングスは大腿二頭筋・半腱様筋・半膜様筋の総称です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1360,7 +1361,7 @@ export const questions: Question[] = [
     options: ["正中神経", "尺骨神経", "筋皮神経", "橈骨神経"],
     correctIndex: 3,
     explanation: "正解は「橈骨神経」。橈骨神経は上腕三頭筋を支配し、上腕骨の橈骨神経溝を走行します。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（筋系）",
   },
   {
@@ -1370,7 +1371,7 @@ export const questions: Question[] = [
     options: ["脳と末梢神経", "脊髄と自律神経", "脳と脊髄", "大脳と小脳"],
     correctIndex: 2,
     explanation: "正解は「脳と脊髄」。中枢神経は脳と脊髄からなります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1380,7 +1381,7 @@ export const questions: Question[] = [
     options: ["後頭葉", "前頭葉", "頭頂葉", "側頭葉"],
     correctIndex: 3,
     explanation: "正解は「側頭葉」。聴覚の中枢は側頭葉にあります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1390,7 +1391,7 @@ export const questions: Question[] = [
     options: ["運動野→内包→大脳脚→橋底部→延髄の錐体→錐体交叉→反対側の脊髄側索後部→前角の運動神経細胞", "運動野→橋底部→内包→大脳脚→延髄の錐体→錐体交叉→同側の脊髄側索後部→前角の運動神経細胞", "運動野→大脳脚→内包→橋底部→延髄の錐体→前角の運動神経細胞→錐体交叉→反対側の脊髄側索後部", "運動野→内包→延髄の錐体→大脳脚→橋底部→錐体交叉→反対側の脊髄側索後部→前角の運動神経細胞"],
     correctIndex: 0,
     explanation: "正解は「運動野→内包→大脳脚→橋底部→延髄の錐体→錐体交叉→反対側の脊髄側索後部→前角の運動神経細胞」。錐体路は運動野→内包→大脳脚→橋底部→延髄の錐体→錐体交叉→反対側の側索→前角の順に走ります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1400,7 +1401,7 @@ export const questions: Question[] = [
     options: ["軟膜⇒くも膜⇒硬膜", "くも膜⇒硬膜⇒軟膜", "硬膜⇒くも膜⇒軟膜", "硬膜⇒軟膜⇒くも膜"],
     correctIndex: 2,
     explanation: "正解は「硬膜⇒くも膜⇒軟膜」。髄膜は外側（骨側）から硬膜⇒くも膜⇒軟膜の順に並びます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1410,7 +1411,7 @@ export const questions: Question[] = [
     options: ["内頸動脈・椎骨動脈", "前交通動脈・脳底動脈", "中大脳動脈・後大脳動脈", "後交通動脈・前大脳動脈"],
     correctIndex: 1,
     explanation: "正解は「前交通動脈・脳底動脈」。前交通動脈と脳底動脈は正中にある単一の血管です。ほかは左右1対です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1420,7 +1421,7 @@ export const questions: Question[] = [
     options: ["モンロー孔（室間孔）", "第四脳室正中口", "中脳水道", "透明中隔腔"],
     correctIndex: 2,
     explanation: "正解は「中脳水道」。第三脳室と第四脳室は中脳水道でつながっています。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1430,7 +1431,7 @@ export const questions: Question[] = [
     options: ["筋萎縮性側索硬化症（ALS）と重症筋無力症", "パーキンソン病とハンチントン病", "多発性硬化症とギラン・バレー症候群", "アルツハイマー病と脳梗塞"],
     correctIndex: 1,
     explanation: "正解は「パーキンソン病とハンチントン病」。パーキンソン病やハンチントン病は錐体外路（大脳基底核）の障害で起こります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1440,7 +1441,7 @@ export const questions: Question[] = [
     options: ["脊髄視床路", "後索路（薄束・楔状束）", "脊髄小脳路", "錐体路"],
     correctIndex: 3,
     explanation: "正解は「錐体路」。錐体路は運動を伝える下行性（遠心性）の神経路です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（中枢神経系）",
   },
   {
@@ -1450,7 +1451,7 @@ export const questions: Question[] = [
     options: ["咀嚼筋の運動・舌後半の味覚", "顔面の表情筋の運動・舌前半の味覚・唾液腺の分泌", "眼球運動・瞳孔の調節", "聴覚・平衡感覚"],
     correctIndex: 1,
     explanation: "正解は「顔面の表情筋の運動・舌前半の味覚・唾液腺の分泌」。顔面神経は表情筋の運動、舌前2/3の味覚、唾液腺の分泌をつかさどります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1460,7 +1461,7 @@ export const questions: Question[] = [
     options: ["末梢神経の軸索", "脊髄前角細胞", "神経筋接合部", "筋線維のミトコンドリア"],
     correctIndex: 2,
     explanation: "正解は「神経筋接合部」。重症筋無力症は神経筋接合部のアセチルコリン受容体が障害される自己免疫疾患です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1470,7 +1471,7 @@ export const questions: Question[] = [
     options: ["前根", "後根", "前根と後根の両方", "どちらにもない"],
     correctIndex: 1,
     explanation: "正解は「後根」。脊髄神経節（後根神経節）は後根にあります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1480,7 +1481,7 @@ export const questions: Question[] = [
     options: ["後根", "前根", "前根と後根の両方", "脊髄神経節"],
     correctIndex: 1,
     explanation: "正解は「前根」。運動性（遠心性）の軸索は前根を通ります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1490,7 +1491,7 @@ export const questions: Question[] = [
     options: ["後枝", "前枝", "前枝と後枝の両方", "どちらでもない"],
     correctIndex: 1,
     explanation: "正解は「前枝」。神経叢は主に脊髄神経の前枝が集まって形成されます。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1500,7 +1501,7 @@ export const questions: Question[] = [
     options: ["C1-C4", "C5-T1", "T1-T5", "L1-L4"],
     correctIndex: 1,
     explanation: "正解は「C5-T1」。腕神経叢はC5〜T1の高さの脊髄神経からなります。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
   {
@@ -1510,7 +1511,7 @@ export const questions: Question[] = [
     options: ["T2", "T4", "T6", "T10"],
     correctIndex: 1,
     explanation: "正解は「T4」。乳頭の高さのデルマトームはT4です。",
-    category: "人体の構造と機能",
+    category: "解剖学（1年生）",
     source: "解剖学ポイントチェック（末梢神経系）",
   },
 ];

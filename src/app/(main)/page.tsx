@@ -33,6 +33,7 @@ import {
   Book,
 } from "lucide-react";
 import { TOTAL_TERMS } from "@/data/glossary";
+import { questions } from "@/data/questions";
 
 const moodOptions: { value: Mood; emoji: string; label: string }[] = [
   { value: "great", emoji: "😊", label: "とてもいい" },
@@ -193,7 +194,7 @@ export default function HomePage() {
               description="ジャンルや問題数を選んで挑戦"
               action="選ぶ"
               variant="secondary"
-              badge="39問収録"
+              badge={`${questions.length}問収録`}
             />
           </Link>
 
