@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store";
 import { useStats, useReflections, useLearningProgress } from "@/hooks/useApi";
 import { reflectionApi } from "@/lib/api";
@@ -31,6 +32,7 @@ import {
   Timer,
   Pill,
   Book,
+  Bone,
 } from "lucide-react";
 import { TOTAL_TERMS } from "@/data/glossary";
 import { questions } from "@/data/questions";
@@ -44,10 +46,18 @@ const moodOptions: { value: Mood; emoji: string; label: string }[] = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const dailyQuiz = useAppStore((state) => state.dailyQuiz);
   const isPracticumMode = useAppStore((state) => state.isPracticumMode);
   const checklist = useAppStore((state) => state.checklist);
   const getProgress = useAppStore((state) => state.getProgress);
+  const startQuizSession = useAppStore((state) => state.startQuizSession);
+
+  // 解剖学（1年生）51問だけを出題順ランダムで開始
+  const handleStartAnatomy = () => {
+    startQuizSession(["解剖学（1年生）"], 0, "category");
+    router.push("/quiz/session");
+  };
 
   // API hooks
   const { stats, isLoading: isLoadingStats } = useStats();
@@ -197,6 +207,18 @@ export default function HomePage() {
               badge={`${questions.length}問収録`}
             />
           </Link>
+
+          {/* 解剖学（1年生）51問だけ */}
+          <div onClick={handleStartAnatomy} className="block animate-slide-up-3 cursor-pointer">
+            <FeatureCard
+              icon={<Bone className="h-7 w-7 text-white" />}
+              title="解剖学（1年生）"
+              description="1年生の解剖学51問に挑戦（順番・選択肢はランダム）"
+              action="始める"
+              variant="accent"
+              badge="51問"
+            />
+          </div>
 
           {/* 1年生の学習 */}
           <Link href="/learning" className="block animate-slide-up-3">

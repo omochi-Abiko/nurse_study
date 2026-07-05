@@ -277,8 +277,12 @@ export const useAppStore = create<AppState>()(
           filteredQuestions = [...filteredQuestions, ...filteredCustom];
         }
 
-        // シャッフル
-        const shuffled = filteredQuestions.sort(() => Math.random() - 0.5);
+        // シャッフル（Fisher-Yatesで偏りなく並べ替え）
+        const shuffled = [...filteredQuestions];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
 
         // 指定数だけ取得（0の場合は全問）
         const selected = count > 0 ? shuffled.slice(0, count) : shuffled;

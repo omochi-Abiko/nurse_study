@@ -58,6 +58,24 @@ export default function QuizSessionPage() {
   const currentQuestion = quizState === "result" && answeredQuestion ? answeredQuestion : questions[currentIndex];
   const totalQuestions = questions.length;
 
+  // 選択肢を問題ごとにランダムに並べ替える（同じ問題の間は固定）
+  const shuffledOptions = React.useMemo(() => {
+    const q = questions[currentIndex];
+    if (!q?.options) return [] as { text: string; originalIndex: number }[];
+    const arr = q.options.map((text, i) => ({ text, originalIndex: i }));
+    // Fisher-Yatesシャッフル
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [questions, currentIndex]);
+
+  // シャッフル後の並びでの正解の位置
+  const correctDisplayIndex = currentQuestion
+    ? shuffledOptions.findIndex((o) => o.originalIndex === currentQuestion.correctIndex)
+    : -1;
+
   // セッションがない場合はリダイレクト
   React.useEffect(() => {
     if (!session) {
@@ -97,20 +115,19 @@ export default function QuizSessionPage() {
     try {
       await speechService.speakQuestion(
         currentQuestion.text,
-        currentQuestion.options || [],
+        shuffledOptions.map((o) => o.text),
         { rate: voiceSettings.rate }
       );
     } catch (error) {
       console.error("Speech error:", error);
     }
-  }, [currentQuestion, voiceSettings.enabled, voiceSettings.rate]);
+  }, [currentQuestion, voiceSettings.enabled, voiceSettings.rate, shuffledOptions]);
 
   // 解説を読み上げる関数
   const speakExplanation = React.useCallback(async () => {
     if (!currentQuestion || !voiceSettings.enabled) return;
-    const correctLabel = String.fromCharCode(65 + currentQuestion.correctIndex);
-    const correctAnswer =
-      currentQuestion.options?.[currentQuestion.correctIndex] || "";
+    const correctLabel = String.fromCharCode(65 + correctDisplayIndex);
+    const correctAnswer = shuffledOptions[correctDisplayIndex]?.text || "";
     try {
       await speechService.speakExplanation(
         `${correctLabel}、${correctAnswer}`,
@@ -120,7 +137,7 @@ export default function QuizSessionPage() {
     } catch (error) {
       console.error("Speech error:", error);
     }
-  }, [currentQuestion, voiceSettings.enabled, voiceSettings.rate]);
+  }, [currentQuestion, voiceSettings.enabled, voiceSettings.rate, shuffledOptions, correctDisplayIndex]);
 
   // 自動再生：問題表示時に読み上げ（準備完了後のみ）
   React.useEffect(() => {
@@ -152,23 +169,26 @@ export default function QuizSessionPage() {
     hasSpokenRef.current = false;
   }, [currentIndex]);
 
-  const handleSelectOption = async (index: number) => {
+  const handleSelectOption = async (displayIndex: number) => {
     if (quizState !== "question" || !currentQuestion) return;
+
+    // シャッフル後の表示位置から元の選択肢インデックスに変換
+    const originalIndex = shuffledOptions[displayIndex]?.originalIndex ?? displayIndex;
 
     // 回答時の問題を保存（結果表示中に変わらないように）
     setAnsweredQuestion(currentQuestion);
-    setSelectedIndex(index);
-    const correct = index === currentQuestion.correctIndex;
+    setSelectedIndex(displayIndex);
+    const correct = originalIndex === currentQuestion.correctIndex;
     setIsCorrect(correct);
 
-    // ローカルストアに記録
-    answerQuizSession(currentQuestion.id, index, correct);
+    // ローカルストアに記録（元のインデックスで一貫させる）
+    answerQuizSession(currentQuestion.id, originalIndex, correct);
 
     // APIに記録（カスタム問題以外）
     if (!currentQuestion.id.startsWith("custom-")) {
       recordAnswer({
         questionId: currentQuestion.id,
-        selectedIndex: index,
+        selectedIndex: originalIndex,
         isCorrect: correct,
         category: currentQuestion.category,
       });
@@ -334,9 +354,9 @@ export default function QuizSessionPage() {
               </p>
             </div>
 
-            {/* 選択肢 */}
+            {/* 選択肢（ランダムに並べ替え済み） */}
             <div className="space-y-3 mt-auto">
-              {currentQuestion.options?.map((option, index) => (
+              {shuffledOptions.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => handleSelectOption(index)}
@@ -347,7 +367,7 @@ export default function QuizSessionPage() {
                   )}
                 >
                   <span className="font-medium text-neutral-800">
-                    {String.fromCharCode(65 + index)}. {option}
+                    {String.fromCharCode(65 + index)}. {option.text}
                   </span>
                 </button>
               ))}
@@ -387,8 +407,8 @@ export default function QuizSessionPage() {
               </p>
               {!isCorrect && (
                 <p className="text-sm text-primary-600 mt-3">
-                  正解: {String.fromCharCode(65 + currentQuestion.correctIndex)}.{" "}
-                  {currentQuestion.options?.[currentQuestion.correctIndex]}
+                  正解: {String.fromCharCode(65 + correctDisplayIndex)}.{" "}
+                  {shuffledOptions[correctDisplayIndex]?.text}
                 </p>
               )}
               {/* 出典情報 */}
