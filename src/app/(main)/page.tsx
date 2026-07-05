@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useAppStore } from "@/store";
-import { useStats, useReflections } from "@/hooks/useApi";
+import { useStats, useReflections, useLearningProgress } from "@/hooks/useApi";
 import { reflectionApi } from "@/lib/api";
 import { getGreeting } from "@/lib/utils";
 import { FeatureCard, ActionCard, StatCard } from "@/components/ui/card";
@@ -25,7 +25,14 @@ import {
   Target,
   Brain,
   Loader2,
+  GraduationCap,
+  Layers,
+  Calculator,
+  Timer,
+  Pill,
+  Book,
 } from "lucide-react";
+import { TOTAL_TERMS } from "@/data/glossary";
 
 const moodOptions: { value: Mood; emoji: string; label: string }[] = [
   { value: "great", emoji: "😊", label: "とてもいい" },
@@ -44,6 +51,7 @@ export default function HomePage() {
   // API hooks
   const { stats, isLoading: isLoadingStats } = useStats();
   const { reflections, isLoading: isLoadingReflections } = useReflections(1);
+  const { getStats: getLearningStats } = useLearningProgress();
 
   const [isReflectionOpen, setIsReflectionOpen] = React.useState(false);
   const [selectedMood, setSelectedMood] = React.useState<Mood | null>(null);
@@ -65,6 +73,7 @@ export default function HomePage() {
   const answeredCount = dailyQuiz?.answers.length ?? 0;
   const remainingCount = totalQuestions - answeredCount;
   const checkedCount = checklist.filter((item) => item.checked).length;
+  const learningStats = getLearningStats();
 
   const handleSaveReflection = async () => {
     if (selectedMood) {
@@ -188,6 +197,22 @@ export default function HomePage() {
             />
           </Link>
 
+          {/* 1年生の学習 */}
+          <Link href="/learning" className="block animate-slide-up-3">
+            <FeatureCard
+              icon={<GraduationCap className="h-7 w-7 text-white" />}
+              title="1年生の学習"
+              description={
+                learningStats.completed === learningStats.total
+                  ? "すべて完了！"
+                  : `${learningStats.completed}/${learningStats.total} 完了`
+              }
+              action={learningStats.completed === learningStats.total ? undefined : "学ぶ"}
+              completed={learningStats.completed === learningStats.total}
+              variant="neutral"
+            />
+          </Link>
+
           {/* 実習チェック（実習モード時のみ） */}
           {isPracticumMode && (
             <Link href="/practicum" className="block animate-slide-up-4">
@@ -246,6 +271,56 @@ export default function HomePage() {
               icon={<BarChart3 className="h-5 w-5 text-primary-500" />}
               title="週間サマリー"
               description="今週の学習を振り返る"
+              iconBg="bg-primary-100"
+            />
+          </Link>
+
+          {/* フラッシュカード */}
+          <Link href="/flashcards">
+            <ActionCard
+              icon={<Layers className="h-5 w-5 text-secondary-500" />}
+              title="フラッシュカード"
+              description="医療用語・略語を暗記"
+              iconBg="bg-secondary-100"
+            />
+          </Link>
+
+          {/* 用語集 */}
+          <Link href="/glossary">
+            <ActionCard
+              icon={<Book className="h-5 w-5 text-primary-500" />}
+              title="用語集"
+              description={`看護の基本用語${TOTAL_TERMS}語を収録`}
+              iconBg="bg-primary-100"
+            />
+          </Link>
+
+          {/* 点滴計算 */}
+          <Link href="/tools/iv-calculator">
+            <ActionCard
+              icon={<Calculator className="h-5 w-5 text-success-500" />}
+              title="点滴計算"
+              description="滴下数・投与速度を計算"
+              iconBg="bg-success-100"
+            />
+          </Link>
+
+          {/* 学習タイマー */}
+          <Link href="/tools/timer">
+            <ActionCard
+              icon={<Timer className="h-5 w-5 text-warning-500" />}
+              title="学習タイマー"
+              description="ポモドーロテクニックで集中"
+              iconBg="bg-warning-100"
+            />
+          </Link>
+
+          {/* 薬剤検索 */}
+          <Link href="/tools/drug-search">
+            <ActionCard
+              icon={<Pill className="h-5 w-5 text-primary-500" />}
+              title="薬剤検索"
+              description="13,000件以上の薬剤を検索"
               iconBg="bg-primary-100"
             />
           </Link>

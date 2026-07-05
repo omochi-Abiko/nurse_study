@@ -5,11 +5,14 @@ import Link from "next/link";
 import { useAppStore } from "@/store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Calendar, Volume2, Users, Trash2 } from "lucide-react";
+import { ChevronLeft, Calendar, Volume2, Users, Trash2, GraduationCap } from "lucide-react";
+import { StudentGrade } from "@/types";
 
 export default function SettingsPage() {
   const isPracticumMode = useAppStore((state) => state.isPracticumMode);
   const togglePracticumMode = useAppStore((state) => state.togglePracticumMode);
+  const gradeSettings = useAppStore((state) => state.gradeSettings);
+  const updateGradeSettings = useAppStore((state) => state.updateGradeSettings);
   const examSettings = useAppStore((state) => state.examSettings);
   const updateExamSettings = useAppStore((state) => state.updateExamSettings);
   const voiceSettings = useAppStore((state) => state.voiceSettings);
@@ -37,7 +40,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
       {/* ヘッダー */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-neutral-100">
         <div className="flex items-center justify-between px-4 h-14">
@@ -54,6 +57,37 @@ export default function SettingsPage() {
 
       <div className="pt-14 pb-8 screen-padding">
         <div className="space-y-6 mt-4">
+          {/* 学年設定 */}
+          <section>
+            <h2 className="text-sm font-medium text-neutral-600 mb-3 flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              学年設定
+            </h2>
+            <Card className="p-4">
+              <p className="text-sm text-neutral-700 mb-3">
+                学年に合わせた問題が出題されます
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {([1, 2, 3, 4] as StudentGrade[]).map((grade) => (
+                  <button
+                    key={grade}
+                    onClick={() => updateGradeSettings(grade)}
+                    className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                      gradeSettings.grade === grade
+                        ? "bg-primary-500 text-white shadow-md"
+                        : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                    }`}
+                  >
+                    {grade}年生
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-neutral-500 mt-3">
+                現在: {gradeSettings.grade}年生モード
+              </p>
+            </Card>
+          </section>
+
           {/* 国試日付設定 */}
           <section>
             <h2 className="text-sm font-medium text-neutral-600 mb-3 flex items-center gap-2">

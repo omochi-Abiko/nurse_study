@@ -17,6 +17,8 @@ import {
   FacilityNote,
   PhotoNote,
   CustomQuestion,
+  GradeSettings,
+  StudentGrade,
 } from "@/types";
 import { getDailyQuestions, getQuestionById, questions, questionCategories } from "@/data/questions";
 import { defaultChecklist } from "@/data/templates";
@@ -105,6 +107,12 @@ interface AppState {
   getProgress: () => DailyProgress;
 
   // ========================================
+  // Phase 2: 学年設定
+  // ========================================
+  gradeSettings: GradeSettings;
+  updateGradeSettings: (grade: StudentGrade) => void;
+
+  // ========================================
   // Phase 2: 音声設定
   // ========================================
   voiceSettings: VoiceSettings;
@@ -164,14 +172,18 @@ export const useAppStore = create<AppState>()(
         const today = getToday();
         const current = get().dailyQuiz;
 
-        // 日付が違う場合、または問題数が3未満の場合は再生成
-        if (current?.date === today && current.questionIds.length >= 3) return;
+        // 日付が同じ場合、実際に取得できる問題数をチェック
+        if (current?.date === today && current.questionIds.length >= 3) {
+          // 保存されたIDが現在の問題リストに存在するか確認
+          const validCount = current.questionIds.filter((id) => getQuestionById(id)).length;
+          if (validCount >= 3) return;
+        }
 
-        const questions = getDailyQuestions(today, 3);
+        const newQuestions = getDailyQuestions(today, 3);
         set({
           dailyQuiz: {
             date: today,
-            questionIds: questions.map((q) => q.id),
+            questionIds: newQuestions.map((q) => q.id),
             answers: [],
             completed: false,
           },
@@ -595,6 +607,24 @@ export const useAppStore = create<AppState>()(
       },
 
       // ========================================
+      // Phase 2: 学年設定
+      // ========================================
+      gradeSettings: {
+        grade: 1,
+        updatedAt: new Date().toISOString(),
+      },
+
+      updateGradeSettings: (grade) => {
+        set({
+          gradeSettings: {
+            grade,
+            updatedAt: new Date().toISOString(),
+          },
+        });
+        get().showToast("success", `${grade}年生モードに切り替えました`);
+      },
+
+      // ========================================
       // Phase 2: 音声設定
       // ========================================
       voiceSettings: {
@@ -774,6 +804,7 @@ export const useAppStore = create<AppState>()(
         todayReflection: state.todayReflection,
         reflectionHistory: state.reflectionHistory,
         soapRecords: state.soapRecords,
+        gradeSettings: state.gradeSettings,
         voiceSettings: state.voiceSettings,
         examSettings: state.examSettings,
         facilities: state.facilities,

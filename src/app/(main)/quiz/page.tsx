@@ -32,23 +32,35 @@ export default function QuizPage() {
   // 回答時の問題を保存（結果表示中に別の問題に切り替わるのを防ぐ）
   const [answeredQuestion, setAnsweredQuestion] = React.useState<ReturnType<typeof getQuestionsByIds>[0] | null>(null);
 
+  const initDailyQuiz = useAppStore((state) => state.initDailyQuiz);
+
   const questions = React.useMemo(() => {
     if (!dailyQuiz) return [];
     return getQuestionsByIds(dailyQuiz.questionIds);
   }, [dailyQuiz]);
+
+  // 有効な問題が3未満なら再生成
+  React.useEffect(() => {
+    if (dailyQuiz && questions.length < 3) {
+      initDailyQuiz();
+    }
+  }, [dailyQuiz, questions.length, initDailyQuiz]);
 
   // 結果表示中は回答した問題を使用、それ以外は現在の問題
   const currentQuestion = quizState === "result" && answeredQuestion ? answeredQuestion : questions[currentIndex];
   const answeredCount = dailyQuiz?.answers.length ?? 0;
 
   // 初回マウント時のみ：既に回答済みの問題はスキップ
+  // quizState が "question" のときのみ実行（結果表示中はスキップしない）
   const initializedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!initializedRef.current && dailyQuiz && answeredCount > 0) {
+    if (!initializedRef.current && dailyQuiz && quizState === "question") {
       initializedRef.current = true;
-      setCurrentIndex(answeredCount);
+      if (answeredCount > 0 && answeredCount < questions.length) {
+        setCurrentIndex(answeredCount);
+      }
     }
-  }, [dailyQuiz, answeredCount]);
+  }, [dailyQuiz, answeredCount, quizState, questions.length]);
 
   // 全問回答済みなら完了画面へ
   React.useEffect(() => {
@@ -148,13 +160,12 @@ export default function QuizPage() {
 
   const handleNext = () => {
     if (currentIndex >= questions.length - 1) {
-      // 最後の問題だった
       completeDailyQuiz();
       setQuizState("complete");
     } else {
       setCurrentIndex((prev) => prev + 1);
       setSelectedIndex(null);
-      setAnsweredQuestion(null); // 次の問題用にリセット
+      setAnsweredQuestion(null);
       setQuizState("question");
     }
   };

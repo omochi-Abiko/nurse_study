@@ -10,7 +10,11 @@ import {
   soapApi,
   facilityApi,
   settingsApi,
+  learningApi,
+  reviewScheduleApi,
 } from "@/lib/api";
+import { TOTAL_SKILLS } from "@/data/freshman-skills";
+import type { AnswerQuality } from "@/lib/spaced-repetition";
 
 // ========== 苦手問題 hooks ==========
 
@@ -255,4 +259,91 @@ export function useQuizAnswer() {
   };
 
   return { recordAnswer };
+}
+
+// ========== 学習進捗 hooks ==========
+
+export function useLearningProgress() {
+  const { data, error, isLoading } = useSWR(SWR_KEYS.LEARNING, fetcher);
+
+  const skillIds: string[] = data?.skillIds || [];
+
+  const toggleComplete = async (skillId: string) => {
+    await learningApi.toggleComplete(skillId);
+    mutate(SWR_KEYS.LEARNING);
+  };
+
+  const isComplete = (skillId: string) => {
+    return skillIds.includes(skillId);
+  };
+
+  const getStats = () => ({
+    completed: skillIds.length,
+    total: TOTAL_SKILLS,
+  });
+
+  return {
+    skillIds,
+    isLoading,
+    error,
+    toggleComplete,
+    isComplete,
+    getStats,
+  };
+}
+
+// ========== 復習スケジュール hooks (Spaced Repetition) ==========
+
+interface ReviewSchedule {
+  id: string;
+  questionId: string;
+  nextReviewDate: string;
+  interval: number;
+  easeFactor: number;
+  reviewCount: number;
+  lastReviewedAt: string;
+}
+
+export function useReviewSchedule(dueOnly: boolean = false) {
+  const key = dueOnly ? SWR_KEYS.REVIEW_SCHEDULE_DUE : SWR_KEYS.REVIEW_SCHEDULE;
+  const { data, error, isLoading } = useSWR(key, fetcher);
+
+  const schedules: ReviewSchedule[] = data?.schedules || [];
+
+  // 今日復習が必要な問題数
+  const dueCount = schedules.filter((s) => {
+    const reviewDate = new Date(s.nextReviewDate);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return reviewDate <= today;
+  }).length;
+
+  // 復習結果を記録
+  const recordReview = async (questionId: string, quality: AnswerQuality) => {
+    await reviewScheduleApi.recordReview(questionId, quality);
+    mutate(SWR_KEYS.REVIEW_SCHEDULE);
+    mutate(SWR_KEYS.REVIEW_SCHEDULE_DUE);
+  };
+
+  // スケジュールを削除
+  const deleteSchedule = async (questionId: string) => {
+    await reviewScheduleApi.deleteSchedule(questionId);
+    mutate(SWR_KEYS.REVIEW_SCHEDULE);
+    mutate(SWR_KEYS.REVIEW_SCHEDULE_DUE);
+  };
+
+  // 問題のスケジュールを取得
+  const getSchedule = (questionId: string): ReviewSchedule | undefined => {
+    return schedules.find((s) => s.questionId === questionId);
+  };
+
+  return {
+    schedules,
+    dueCount,
+    isLoading,
+    error,
+    recordReview,
+    deleteSchedule,
+    getSchedule,
+  };
 }

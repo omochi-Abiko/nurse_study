@@ -121,6 +121,16 @@ export interface CategoryStats {
 }
 
 // ========================================
+// Phase 2: 学年設定
+// ========================================
+export type StudentGrade = 1 | 2 | 3 | 4;
+
+export interface GradeSettings {
+  grade: StudentGrade;
+  updatedAt: string;
+}
+
+// ========================================
 // Phase 2: 音声設定
 // ========================================
 export interface VoiceSettings {

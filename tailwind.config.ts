@@ -10,21 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // プライマリ（メディカルブルー・水色系）
+        // プライマリ（ナースピンク・やさしい桜色系）
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
-        },
-        // セカンダリ（ナース服のピンク・温かみ）
-        secondary: {
           50: "#fdf2f8",
           100: "#fce7f3",
           200: "#fbcfe8",
@@ -35,6 +22,32 @@ const config: Config = {
           700: "#be185d",
           800: "#9d174d",
           900: "#831843",
+        },
+        // セカンダリ（ターコイズ・清潔感のあるミント系）
+        secondary: {
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          200: "#99f6e4",
+          300: "#5eead4",
+          400: "#2dd4bf",
+          500: "#14b8a6",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a",
+        },
+        // アクセント（ラベンダー・かわいい差し色）
+        accent: {
+          50: "#faf5ff",
+          100: "#f3e8ff",
+          200: "#e9d5ff",
+          300: "#d8b4fe",
+          400: "#c084fc",
+          500: "#a855f7",
+          600: "#9333ea",
+          700: "#7e22ce",
+          800: "#6b21a8",
+          900: "#581c87",
         },
         // 成功（正解）
         success: {
@@ -77,7 +90,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['"Noto Sans JP"', "system-ui", "sans-serif"],
+        // 丸ゴシックでやさしい・かわいい印象に
+        sans: ['"Zen Maru Gothic"', '"Noto Sans JP"', "system-ui", "sans-serif"],
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1.5" }],
@@ -95,16 +109,19 @@ const config: Config = {
         "safe-right": "env(safe-area-inset-right)",
       },
       borderRadius: {
-        sm: "4px",
-        md: "8px",
-        lg: "12px",
-        xl: "16px",
+        sm: "6px",
+        md: "10px",
+        lg: "14px",
+        xl: "18px",
+        "2xl": "22px",
+        "3xl": "28px",
       },
       boxShadow: {
-        sm: "0 1px 2px rgba(0, 0, 0, 0.04)",
-        card: "0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)",
-        md: "0 2px 8px rgba(0, 0, 0, 0.06)",
-        lg: "0 4px 16px rgba(0, 0, 0, 0.08)",
+        // ピンクがかったやわらかいシャドウ
+        sm: "0 1px 2px rgba(190, 24, 93, 0.05)",
+        card: "0 2px 8px rgba(190, 24, 93, 0.06), 0 1px 2px rgba(190, 24, 93, 0.03)",
+        md: "0 3px 10px rgba(190, 24, 93, 0.08)",
+        lg: "0 6px 20px rgba(190, 24, 93, 0.1)",
       },
       animation: {
         "fade-in": "fadeIn 0.2s ease-out",

@@ -81,16 +81,16 @@ interface FeatureCardProps extends React.HTMLAttributes<HTMLDivElement> {
 const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
   ({ className, icon, title, description, action, completed, variant = "primary", badge, ...props }, ref) => {
     const gradients = {
-      primary: "from-primary-500 to-primary-600",
+      primary: "from-primary-400 to-primary-500",
       secondary: "from-secondary-400 to-secondary-500",
-      neutral: "from-neutral-600 to-neutral-700",
-      accent: "from-primary-400 via-secondary-400 to-warning-400",
+      neutral: "from-accent-400 to-accent-500",
+      accent: "from-primary-400 via-accent-400 to-secondary-400",
     };
 
     const iconBgs = {
-      primary: "bg-primary-400/30",
+      primary: "bg-primary-300/30",
       secondary: "bg-secondary-300/30",
-      neutral: "bg-neutral-500/30",
+      neutral: "bg-accent-300/30",
       accent: "bg-white/20",
     };
 
