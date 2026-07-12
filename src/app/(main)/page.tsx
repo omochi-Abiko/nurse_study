@@ -33,9 +33,16 @@ import {
   Pill,
   Book,
   Bone,
+  HeartPulse,
+  BedDouble,
 } from "lucide-react";
 import { TOTAL_TERMS } from "@/data/glossary";
 import { questions } from "@/data/questions";
+import { physiologyQuestions } from "@/data/physiology";
+import { careEnvironmentQuestions } from "@/data/care-environment";
+
+const physiologyCount = physiologyQuestions.length;
+const careEnvironmentCount = careEnvironmentQuestions.length;
 
 const moodOptions: { value: Mood; emoji: string; label: string }[] = [
   { value: "great", emoji: "😊", label: "とてもいい" },
@@ -56,6 +63,18 @@ export default function HomePage() {
   // 解剖学（1年生）51問だけを出題順ランダムで開始
   const handleStartAnatomy = () => {
     startQuizSession(["解剖学（1年生）"], 0, "category");
+    router.push("/quiz/session");
+  };
+
+  // 生理学（1年生）だけを出題順ランダムで開始
+  const handleStartPhysiology = () => {
+    startQuizSession(["生理学（1年生）"], 0, "category");
+    router.push("/quiz/session");
+  };
+
+  // 療養環境（1年生）だけを出題順ランダムで開始
+  const handleStartCareEnvironment = () => {
+    startQuizSession(["療養環境（1年生）"], 0, "category");
     router.push("/quiz/session");
   };
 
@@ -217,6 +236,30 @@ export default function HomePage() {
               action="始める"
               variant="accent"
               badge="51問"
+            />
+          </div>
+
+          {/* 生理学（1年生） */}
+          <div onClick={handleStartPhysiology} className="block animate-slide-up-3 cursor-pointer">
+            <FeatureCard
+              icon={<HeartPulse className="h-7 w-7 text-white" />}
+              title="生理学（1年生）"
+              description="生理学（前半）認定試験の70問に挑戦（順番・選択肢はランダム）"
+              action="始める"
+              variant="secondary"
+              badge={`${physiologyCount}問`}
+            />
+          </div>
+
+          {/* 療養環境（1年生） */}
+          <div onClick={handleStartCareEnvironment} className="block animate-slide-up-3 cursor-pointer">
+            <FeatureCard
+              icon={<BedDouble className="h-7 w-7 text-white" />}
+              title="療養環境（1年生）"
+              description="基礎看護技術1「療養環境」の40問に挑戦（順番・選択肢はランダム）"
+              action="始める"
+              variant="neutral"
+              badge={`${careEnvironmentCount}問`}
             />
           </div>
 
