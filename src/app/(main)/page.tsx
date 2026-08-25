@@ -40,9 +40,11 @@ import { TOTAL_TERMS } from "@/data/glossary";
 import { questions } from "@/data/questions";
 import { physiologyQuestions } from "@/data/physiology";
 import { careEnvironmentQuestions } from "@/data/care-environment";
+import { mentalHealthQuestions } from "@/data/mental-health";
 
 const physiologyCount = physiologyQuestions.length;
 const careEnvironmentCount = careEnvironmentQuestions.length;
+const mentalHealthCount = mentalHealthQuestions.length;
 
 const moodOptions: { value: Mood; emoji: string; label: string }[] = [
   { value: "great", emoji: "😊", label: "とてもいい" },
@@ -75,6 +77,12 @@ export default function HomePage() {
   // 療養環境（1年生）だけを出題順ランダムで開始
   const handleStartCareEnvironment = () => {
     startQuizSession(["療養環境（1年生）"], 0, "category");
+    router.push("/quiz/session");
+  };
+
+  // 精神保健（1年生）だけを出題順ランダムで開始
+  const handleStartMentalHealth = () => {
+    startQuizSession(["精神保健（1年生）"], 0, "category");
     router.push("/quiz/session");
   };
 
@@ -260,6 +268,18 @@ export default function HomePage() {
               action="始める"
               variant="neutral"
               badge={`${careEnvironmentCount}問`}
+            />
+          </div>
+
+          {/* 精神保健（1年生） */}
+          <div onClick={handleStartMentalHealth} className="block animate-slide-up-3 cursor-pointer">
+            <FeatureCard
+              icon={<Brain className="h-7 w-7 text-white" />}
+              title="精神保健（1年生）"
+              description="精神保健関連の国試過去問93問に挑戦（順番・選択肢はランダム）"
+              action="始める"
+              variant="primary"
+              badge={`${mentalHealthCount}問`}
             />
           </div>
 
