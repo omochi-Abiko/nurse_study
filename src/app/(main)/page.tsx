@@ -352,6 +352,15 @@ export default function HomePage() {
             />
           </Link>
 
+          <Link href="/review/saved">
+            <ActionCard
+              icon={<BookOpen className="h-5 w-5 text-primary-500" />}
+              title="復習に保存した問題"
+              description="分野ごとの一覧で確認"
+              iconBg="bg-primary-100"
+            />
+          </Link>
+
           {/* 週間サマリー */}
           <Link href="/summary">
             <ActionCard

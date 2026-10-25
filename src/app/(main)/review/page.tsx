@@ -84,6 +84,7 @@ export default function ReviewPage() {
         <h1 className="text-xl font-bold text-neutral-900">苦手を復習</h1>
         <span className="text-sm text-neutral-500">あと{remainingCount}問</span>
       </header>
+      <Link href="/review/saved" className="mb-4 flex min-h-11 items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm font-medium text-primary-700"><List className="h-4 w-4" />保存した問題を分野別に見る</Link>
       <p className="text-sm text-neutral-500 mb-4">選択肢を選んで回答。正解は「わかった」、不正解は「まだ」に自動で分類されます。</p>
       <div className="flex items-center gap-3 mb-5">
         <label className="flex-1 text-sm text-neutral-600">
