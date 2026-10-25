@@ -53,7 +53,7 @@ const featureGuides: FeatureGuide[] = [
   {
     icon: <Brain className="h-5 w-5" />,
     title: "復習",
-    description: "スワイプで苦手問題を効率的に復習",
+    description: "選択肢に答えて自動採点。苦手問題を正解するまで繰り返し復習",
   },
   {
     icon: <ClipboardCheck className="h-5 w-5" />,

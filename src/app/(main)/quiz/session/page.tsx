@@ -7,11 +7,12 @@ import { useQuizAnswer, useWeakQuestions } from "@/hooks/useApi";
 import { getQuestionById } from "@/data/questions";
 import { Question } from "@/types";
 import { Button } from "@/components/ui/button";
+import { AddToReviewButton } from "@/components/ui/add-to-review-button";
 import { ProgressBar } from "@/components/ui/progress";
 import { VoiceControl, VoiceSettingsSheet } from "@/components/ui/voice-control";
 import { speechService } from "@/lib/speech";
 import { cn } from "@/lib/utils";
-import { X, Check, BookmarkPlus, Trophy, Settings, Share2 } from "lucide-react";
+import { X, Check, Trophy, Settings, Share2 } from "lucide-react";
 import { shareService } from "@/lib/share";
 
 type QuizState = "question" | "result" | "complete";
@@ -30,7 +31,6 @@ export default function QuizSessionPage() {
   const { addWeakQuestion } = useWeakQuestions();
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [quizState, setQuizState] = React.useState<QuizState>("question");
   const [isCorrect, setIsCorrect] = React.useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = React.useState(false);
@@ -38,6 +38,7 @@ export default function QuizSessionPage() {
   const hasSpokenRef = React.useRef(false);
   // 回答時の問題を保存（結果表示中に別の問題に切り替わるのを防ぐ）
   const [answeredQuestion, setAnsweredQuestion] = React.useState<Question | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = React.useState<{ label: string; text: string } | null>(null);
 
   // 問題を取得（通常問題 + カスタム問題）
   const getQuestion = React.useCallback(
@@ -48,11 +49,11 @@ export default function QuizSessionPage() {
   );
 
   const questions = React.useMemo(() => {
-    if (!session) return [];
+    if (!session?.questionIds) return [];
     return session.questionIds
       .map((id) => getQuestion(id))
       .filter(Boolean) as Question[];
-  }, [session, getQuestion]);
+  }, [session?.questionIds, getQuestion]);
 
   // 結果表示中は回答した問題を使用、それ以外は現在の問題
   const currentQuestion = quizState === "result" && answeredQuestion ? answeredQuestion : questions[currentIndex];
@@ -76,21 +77,28 @@ export default function QuizSessionPage() {
     ? shuffledOptions.findIndex((o) => o.originalIndex === currentQuestion.correctIndex)
     : -1;
 
-  // セッションがない場合はリダイレクト
-  React.useEffect(() => {
-    if (!session) {
-      router.push("/quiz/select");
-    }
-  }, [session, router]);
-
-  // 初回マウント時のみ：既に回答済みの問題はスキップ
+  // 保存済みセッションを初回だけ復元。回答直後に位置を動かさない。
   const initializedRef = React.useRef(false);
+  const [isRestored, setIsRestored] = React.useState(false);
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => setHasMounted(true), []);
   React.useEffect(() => {
-    if (!initializedRef.current && session && session.answers.length > 0) {
-      initializedRef.current = true;
-      setCurrentIndex(session.answers.length);
+    if (!hasMounted || initializedRef.current) return;
+    if (!session) {
+      router.replace("/quiz/select");
+      return;
     }
-  }, [session]);
+    initializedRef.current = true;
+    const answeredIds = new Set(session.answers.map((answer) => answer.questionId));
+    const nextIndex = questions.findIndex((question) => !answeredIds.has(question.id));
+    if (session.completed || nextIndex === -1) {
+      setQuizState("complete");
+      if (!session.completed) completeQuizSession();
+    } else {
+      setCurrentIndex(nextIndex);
+    }
+    setIsRestored(true);
+  }, [hasMounted, session, questions, router, completeQuizSession]);
 
   // 完了チェック
   React.useEffect(() => {
@@ -101,13 +109,13 @@ export default function QuizSessionPage() {
 
   // コンポーネントが準備完了したらフラグを立てる
   React.useEffect(() => {
-    if (currentQuestion && !isReady) {
+    if (isRestored && currentQuestion && !isReady) {
       const timer = setTimeout(() => {
         setIsReady(true);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [currentQuestion, isReady]);
+  }, [isRestored, currentQuestion, isReady]);
 
   // 問題を読み上げる関数
   const speakQuestion = React.useCallback(async () => {
@@ -177,7 +185,10 @@ export default function QuizSessionPage() {
 
     // 回答時の問題を保存（結果表示中に変わらないように）
     setAnsweredQuestion(currentQuestion);
-    setSelectedIndex(displayIndex);
+    setSelectedAnswer({
+      label: String.fromCharCode(65 + displayIndex),
+      text: shuffledOptions[displayIndex]?.text ?? "",
+    });
     const correct = originalIndex === currentQuestion.correctIndex;
     setIsCorrect(correct);
 
@@ -203,8 +214,8 @@ export default function QuizSessionPage() {
       setQuizState("complete");
     } else {
       setCurrentIndex((prev) => prev + 1);
-      setSelectedIndex(null);
       setAnsweredQuestion(null); // 次の問題用にリセット
+      setSelectedAnswer(null);
       setQuizState("question");
     }
   };
@@ -216,7 +227,6 @@ export default function QuizSessionPage() {
   };
 
   const handleClose = () => {
-    clearQuizSession();
     router.push("/");
   };
 
@@ -229,6 +239,10 @@ export default function QuizSessionPage() {
     clearQuizSession();
     router.push("/quiz/select");
   };
+
+  if (!isRestored) {
+    return <div className="min-h-screen flex items-center justify-center"><p className="text-neutral-500">読み込み中...</p></div>;
+  }
 
   // 完了画面
   if (quizState === "complete") {
@@ -309,7 +323,7 @@ export default function QuizSessionPage() {
         <button
           onClick={handleClose}
           className="p-2 -ml-2 text-neutral-400 hover:text-neutral-600 transition-colors tap-target"
-          aria-label="閉じる"
+          aria-label="中断してホームへ戻る"
         >
           <X className="h-6 w-6" />
         </button>
@@ -401,16 +415,22 @@ export default function QuizSessionPage() {
 
             {/* 解説 */}
             <div className="mt-8 p-4 bg-neutral-50 rounded-xl">
+              {selectedAnswer && (
+                <div className={cn("mb-4 rounded-lg border p-3", isCorrect ? "border-success-200 bg-success-50 text-success-700" : "border-error-200 bg-error-50 text-error-700")}>
+                  <p className="text-sm font-medium mb-1">あなたの回答（{isCorrect ? "○ 正解" : "× 不正解"}）</p>
+                  <p className="font-medium">{selectedAnswer.label}. {selectedAnswer.text}</p>
+                </div>
+              )}
+              {!isCorrect && (
+                <div className="mb-4 rounded-lg border border-success-200 bg-success-50 p-3 text-success-700">
+                  <p className="text-sm font-medium mb-1">正しい答え（○ 正解）</p>
+                  <p className="font-medium">{String.fromCharCode(65 + correctDisplayIndex)}. {shuffledOptions[correctDisplayIndex]?.text}</p>
+                </div>
+              )}
               <p className="text-sm font-medium text-neutral-500 mb-2">解説</p>
               <p className="text-neutral-800 leading-relaxed">
                 {currentQuestion.explanation}
               </p>
-              {!isCorrect && (
-                <p className="text-sm text-primary-600 mt-3">
-                  正解: {String.fromCharCode(65 + correctDisplayIndex)}.{" "}
-                  {shuffledOptions[correctDisplayIndex]?.text}
-                </p>
-              )}
               {/* 出典情報 */}
               {currentQuestion.source && (
                 <div className="mt-4 pt-3 border-t border-neutral-200">
@@ -428,13 +448,9 @@ export default function QuizSessionPage() {
             </div>
 
             {/* 苦手登録ボタン */}
-            <button
-              onClick={handleAddToWeak}
-              className="flex items-center justify-center gap-2 mt-4 py-3 text-neutral-500 hover:text-primary-600 transition-colors"
-            >
-              <BookmarkPlus className="h-5 w-5" />
-              <span className="text-sm">あとで復習する</span>
-            </button>
+            {!currentQuestion.id.startsWith("custom-") && (
+              <AddToReviewButton key={currentQuestion.id} onAdd={handleAddToWeak} />
+            )}
 
             {/* 次へボタン */}
             <div className="mt-auto pt-6">

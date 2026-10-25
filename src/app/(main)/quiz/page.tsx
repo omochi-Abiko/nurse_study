@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store";
 import { getQuestionsByIds } from "@/data/questions";
 import { Button } from "@/components/ui/button";
+import { AddToReviewButton } from "@/components/ui/add-to-review-button";
 import { ProgressDots } from "@/components/ui/progress";
 import { VoiceControl, VoiceSettingsSheet } from "@/components/ui/voice-control";
 import { speechService } from "@/lib/speech";
 import { cn } from "@/lib/utils";
 import { shareService } from "@/lib/share";
-import { X, Check, BookmarkPlus, Stethoscope, Settings, Share2 } from "lucide-react";
+import { X, Check, Stethoscope, Settings, Share2 } from "lucide-react";
 
 type QuizState = "question" | "result" | "complete";
 
@@ -326,16 +327,22 @@ export default function QuizPage() {
 
             {/* 解説 */}
             <div className="mt-8 p-4 bg-neutral-50 rounded-xl">
+              {selectedIndex !== null && (
+                <div className={cn("mb-4 rounded-lg border p-3", isCorrect ? "border-success-200 bg-success-50 text-success-700" : "border-error-200 bg-error-50 text-error-700")}>
+                  <p className="text-sm font-medium mb-1">あなたの回答（{isCorrect ? "○ 正解" : "× 不正解"}）</p>
+                  <p className="font-medium">{String.fromCharCode(65 + selectedIndex)}. {currentQuestion.options?.[selectedIndex]}</p>
+                </div>
+              )}
+              {!isCorrect && (
+                <div className="mb-4 rounded-lg border border-success-200 bg-success-50 p-3 text-success-700">
+                  <p className="text-sm font-medium mb-1">正しい答え（○ 正解）</p>
+                  <p className="font-medium">{String.fromCharCode(65 + currentQuestion.correctIndex)}. {currentQuestion.options?.[currentQuestion.correctIndex]}</p>
+                </div>
+              )}
               <p className="text-sm font-medium text-neutral-500 mb-2">解説</p>
               <p className="text-neutral-800 leading-relaxed">
                 {currentQuestion.explanation}
               </p>
-              {!isCorrect && (
-                <p className="text-sm text-primary-600 mt-3">
-                  正解: {String.fromCharCode(65 + currentQuestion.correctIndex)}.{" "}
-                  {currentQuestion.options?.[currentQuestion.correctIndex]}
-                </p>
-              )}
               {/* 出典情報 */}
               {currentQuestion.source && (
                 <div className="mt-4 pt-3 border-t border-neutral-200">
@@ -352,13 +359,7 @@ export default function QuizPage() {
             </div>
 
             {/* 苦手登録ボタン */}
-            <button
-              onClick={handleAddToWeak}
-              className="flex items-center justify-center gap-2 mt-4 py-3 text-neutral-500 hover:text-primary-600 transition-colors"
-            >
-              <BookmarkPlus className="h-5 w-5" />
-              <span className="text-sm">あとで復習する</span>
-            </button>
+            <AddToReviewButton key={currentQuestion.id} onAdd={handleAddToWeak} />
 
             {/* 次へボタン */}
             <div className="mt-auto pt-6">

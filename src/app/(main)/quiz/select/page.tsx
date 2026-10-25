@@ -7,6 +7,7 @@ import { useAppStore } from "@/store";
 import { questions, questionCategories } from "@/data/questions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ResumeQuiz } from "@/components/ui/resume-quiz";
 import {
   ChevronLeft,
   Shuffle,
@@ -94,6 +95,7 @@ export default function QuizSelectPage() {
       </header>
 
       <div className="pt-14 pb-8 screen-padding">
+        <ResumeQuiz />
         {/* クイックスタート */}
         <section className="mt-4 mb-6">
           <h2 className="text-sm font-medium text-neutral-500 mb-3">

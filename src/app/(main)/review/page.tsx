@@ -1,426 +1,153 @@
 "use client";
 
 import * as React from "react";
-import { useAppStore } from "@/store";
-import { useWeakQuestions, useStats } from "@/hooks/useApi";
+import Link from "next/link";
+import { useWeakQuestions } from "@/hooks/useApi";
 import { getQuestionById } from "@/data/questions";
-import { SwipeCard } from "@/components/ui/swipe-card";
+import { advanceReviewQueue } from "@/lib/review-queue";
 import { Button } from "@/components/ui/button";
-import { WeakCategoryAlert, CategoryStatsList } from "@/components/ui/category-badge";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { RefreshCw, Brain, BarChart3, X, Loader2, Table2, Layers, Trash2, ChevronDown } from "lucide-react";
+import { Brain, Loader2, List } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { LocalWeakQuestion } from "@/lib/local-db";
 
 export default function ReviewPage() {
-  // API hooks
-  const { weakQuestions: apiWeakQuestions, isLoading, removeWeakQuestion, reviewWeakQuestion } = useWeakQuestions();
-  const { stats } = useStats();
+  const { weakQuestions, isLoading, error, answerWeakQuestion } = useWeakQuestions();
+  const [queue, setQueue] = React.useState<string[] | null>(null);
+  const [category, setCategory] = React.useState("");
+  const [showList, setShowList] = React.useState(false);
+  const [result, setResult] = React.useState<{ selectedIndex: number; isCorrect: boolean } | null>(null);
+  const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState("");
+  const [solvedCount, setSolvedCount] = React.useState(0);
+  const submitting = React.useRef(false);
 
-  // Zustand (カテゴリ統計用 - 将来的にはAPIに移行)
-  const getCategoryStats = useAppStore((state) => state.getCategoryStats);
-  const getWeakCategories = useAppStore((state) => state.getWeakCategories);
+  const available = (weakQuestions as LocalWeakQuestion[])
+    .map((item) => getQuestionById(item.questionId))
+    .filter((question) => question !== undefined);
+  const categories = [...new Set(available.map((question) => question.category))];
 
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [showAnswer, setShowAnswer] = React.useState(false);
-  const [completed, setCompleted] = React.useState(false);
-  const [showStats, setShowStats] = React.useState(false);
-  const [filterCategory, setFilterCategory] = React.useState<string | null>(null);
-  // 表示モード（カードめくり / テーブル一覧）
-  const [viewMode, setViewMode] = React.useState<"swipe" | "table">("swipe");
-  // テーブルで解説を開いている問題ID
-  const [expandedId, setExpandedId] = React.useState<string | null>(null);
-
-  const categoryStats = getCategoryStats();
-  const weakCategories = getWeakCategories();
-
-  // APIから取得した苦手問題を使用
-  const questions = React.useMemo(() => {
-    if (!apiWeakQuestions) return [];
-
-    let filtered = apiWeakQuestions
-      .map((w: { questionId: string; addedAt: string; reviewCount: number }) => ({
-        ...w,
-        question: getQuestionById(w.questionId),
-      }))
-      .filter((w: { question: unknown }) => w.question);
-
-    // カテゴリフィルターが設定されている場合
-    if (filterCategory) {
-      filtered = filtered.filter((w: { question: { category: string } | null }) => w.question?.category === filterCategory);
+  // 出題順は保存リストから切り離す。正解でリストが減っても問題を飛ばさない。
+  React.useEffect(() => {
+    if (!isLoading && !error && queue === null) {
+      setQueue((weakQuestions as LocalWeakQuestion[])
+        .map((item) => getQuestionById(item.questionId))
+        .filter((question) => question && (!category || question.category === category))
+        .map((question) => question!.id));
     }
+  }, [weakQuestions, isLoading, error, queue, category]);
 
-    return filtered;
-  }, [apiWeakQuestions, filterCategory]);
+  const question = queue?.[0] ? getQuestionById(queue[0]) : undefined;
+  const remainingCount = (queue?.length ?? 0) - (result?.isCorrect ? 1 : 0);
 
-  // カテゴリフィルターをクリア
-  const clearFilter = () => {
-    setFilterCategory(null);
-    setCurrentIndex(0);
-    setShowAnswer(false);
-    setCompleted(false);
-  };
-
-  // カテゴリ選択
-  const handleCategoryClick = (category: string) => {
-    setFilterCategory(category);
-    setCurrentIndex(0);
-    setShowAnswer(false);
-    setCompleted(false);
-    setShowStats(false);
-  };
-
-  const currentItem = questions[currentIndex];
-  const remainingCount = questions.length - currentIndex;
-
-  const handleSwipeRight = async () => {
-    // わかった → 苦手から削除
-    if (currentItem) {
-      await removeWeakQuestion(currentItem.questionId);
-    }
-    moveToNext();
-  };
-
-  const handleSwipeLeft = async () => {
-    // まだ → 復習回数を更新
-    if (currentItem) {
-      await reviewWeakQuestion(currentItem.questionId);
-    }
-    moveToNext();
-  };
-
-  const moveToNext = () => {
-    setShowAnswer(false);
-    if (currentIndex >= questions.length - 1) {
-      setCompleted(true);
-    } else {
-      setCurrentIndex((prev) => prev + 1);
+  const selectAnswer = async (selectedIndex: number) => {
+    if (!question || result || submitting.current) return;
+    submitting.current = true;
+    setSaving(true);
+    setSaveError("");
+    try {
+      const answer = await answerWeakQuestion(question.id, selectedIndex);
+      setResult({ selectedIndex, isCorrect: answer.isCorrect });
+      if (answer.isCorrect) setSolvedCount((count) => count + 1);
+    } catch {
+      setSaveError("回答を保存できませんでした。もう一度選んでください。");
+    } finally {
+      submitting.current = false;
+      setSaving(false);
     }
   };
 
-  const handleReset = () => {
-    setCurrentIndex(0);
-    setShowAnswer(false);
-    setCompleted(false);
+  const nextQuestion = () => {
+    if (!question || !result) return;
+    setQueue((current) => advanceReviewQueue(current ?? [], question.id, result.isCorrect));
+    setResult(null);
+    setSaveError("");
   };
 
-  // ローディング中
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <Loader2 className="h-8 w-8 text-primary-500 animate-spin mb-4" />
-        <p className="text-neutral-500">読み込み中...</p>
-      </div>
-    );
+  const changeCategory = (value: string) => {
+    setCategory(value);
+    setQueue(null);
+    setResult(null);
+    setShowList(false);
+    setSaveError("");
+  };
+
+  if (isLoading || (queue === null && !error)) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-500" aria-label="読み込み中" /></div>;
   }
-
-  // 復習する問題がない
-  if (questions.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 flex items-center justify-center">
-          <Brain className="h-10 w-10 text-primary-500" />
-        </div>
-        <h1 className="text-xl font-bold text-neutral-900 mb-2">
-          復習する問題はないよ
-        </h1>
-        <p className="text-neutral-500 text-sm max-w-[280px]">
-          クイズで間違えた問題や「あとで復習」を押した問題がここに追加されるよ
-        </p>
-      </div>
-    );
-  }
-
-  // テーブル（一覧）表示
-  if (viewMode === "table") {
-    return (
-      <div className="min-h-screen flex flex-col px-4 pt-6 pb-24">
-        {/* ヘッダー */}
-        <header className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-neutral-900">復習</h1>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode("swipe")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-neutral-600 hover:bg-neutral-100 transition-colors"
-              aria-label="カード表示に切り替え"
-            >
-              <Layers className="h-4 w-4" />
-              カード
-            </button>
-            <span className="text-sm text-neutral-500">{questions.length}問</span>
-          </div>
-        </header>
-
-        {/* カテゴリフィルター表示 */}
-        {filterCategory && (
-          <div className="flex items-center gap-2 mb-4 p-3 bg-primary-50 rounded-xl">
-            <span className="text-sm text-primary-700 flex-1">
-              「{filterCategory}」で絞り込み中
-            </span>
-            <button
-              onClick={clearFilter}
-              className="p-1 text-primary-500 hover:text-primary-700 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        {/* テーブル本体（横スクロール対応） */}
-        <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-card">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-neutral-50 text-neutral-500 text-xs">
-                <th className="text-left font-medium px-3 py-2.5 min-w-[180px]">問題</th>
-                <th className="text-left font-medium px-3 py-2.5 whitespace-nowrap">分野</th>
-                <th className="text-left font-medium px-3 py-2.5 whitespace-nowrap">正解</th>
-                <th className="text-center font-medium px-2 py-2.5 whitespace-nowrap">回数</th>
-                <th className="px-2 py-2.5" aria-label="操作" />
-              </tr>
-            </thead>
-            <tbody>
-              {questions.map(
-                (item: {
-                  questionId: string;
-                  reviewCount: number;
-                  question: {
-                    text: string;
-                    category: string;
-                    options?: string[];
-                    correctIndex: number;
-                    explanation: string;
-                  } | null;
-                }) => {
-                  const q = item.question;
-                  if (!q) return null;
-                  const isExpanded = expandedId === item.questionId;
-                  const correctLabel = String.fromCharCode(65 + q.correctIndex);
-                  const correctText = q.options?.[q.correctIndex] ?? "";
-                  return (
-                    <React.Fragment key={item.questionId}>
-                      <tr
-                        onClick={() =>
-                          setExpandedId(isExpanded ? null : item.questionId)
-                        }
-                        className="border-t border-neutral-100 cursor-pointer hover:bg-neutral-50 transition-colors align-top"
-                      >
-                        <td className="px-3 py-3 text-neutral-800">
-                          <div className="flex items-start gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-4 w-4 text-neutral-400 mt-0.5 flex-shrink-0 transition-transform",
-                                isExpanded && "rotate-180"
-                              )}
-                            />
-                            <span>{q.text}</span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap">
-                          <span className="text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
-                            {q.category}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 text-success-700 font-medium whitespace-nowrap">
-                          {correctLabel}. {correctText}
-                        </td>
-                        <td className="px-2 py-3 text-center text-neutral-500 whitespace-nowrap">
-                          {item.reviewCount}
-                        </td>
-                        <td className="px-2 py-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeWeakQuestion(item.questionId);
-                            }}
-                            className="p-1.5 text-neutral-400 hover:text-error-500 transition-colors"
-                            aria-label="苦手リストから削除"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                      {isExpanded && (
-                        <tr className="bg-neutral-50/60">
-                          <td colSpan={5} className="px-4 py-3">
-                            <p className="text-xs font-medium text-neutral-500 mb-1">解説</p>
-                            <p className="text-sm text-neutral-700 leading-relaxed">
-                              {q.explanation}
-                            </p>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  );
-                }
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-center text-xs text-neutral-400 mt-3">
-          行をタップで解説を表示・ゴミ箱で苦手から削除
-        </p>
-      </div>
-    );
-  }
-
-  // 完了画面
-  if (completed) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 flex items-center justify-center">
-          <Brain className="h-10 w-10 text-primary-500" />
-        </div>
-        <h1 className="text-xl font-bold text-neutral-900 mb-2">
-          今日の復習おわり！
-        </h1>
-        <p className="text-neutral-500 mb-8">スキマ時間にえらい</p>
-        <Button variant="secondary" onClick={handleReset}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          もう一度
-        </Button>
-      </div>
-    );
+  if (error) {
+    return <p role="alert" className="p-6">苦手問題を読み込めませんでした。ページを再読み込みしてください。</p>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-4 pt-6 pb-24">
-      {/* ヘッダー */}
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-neutral-900">復習</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode("table")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-neutral-600 hover:bg-neutral-100 transition-colors"
-            aria-label="一覧（テーブル）表示に切り替え"
-          >
-            <Table2 className="h-4 w-4" />
-            一覧
-          </button>
-          <button
-            onClick={() => setShowStats(true)}
-            className="p-2 text-neutral-500 hover:text-neutral-700 transition-colors rounded-lg hover:bg-neutral-100"
-            aria-label="分野別成績を見る"
-          >
-            <BarChart3 className="h-5 w-5" />
-          </button>
-          <span className="text-sm text-neutral-500">あと {remainingCount} 枚</span>
-        </div>
+    <div className="min-h-screen px-4 pt-6 pb-24">
+      <header className="flex items-center justify-between gap-3 mb-4">
+        <h1 className="text-xl font-bold text-neutral-900">苦手を復習</h1>
+        <span className="text-sm text-neutral-500">あと{remainingCount}問</span>
       </header>
-
-      {/* 苦手カテゴリアラート */}
-      {weakCategories.length > 0 && !filterCategory && (
-        <WeakCategoryAlert categories={weakCategories} className="mb-4" />
-      )}
-
-      {/* カテゴリフィルター表示 */}
-      {filterCategory && (
-        <div className="flex items-center gap-2 mb-4 p-3 bg-primary-50 rounded-xl">
-          <span className="text-sm text-primary-700 flex-1">
-            「{filterCategory}」を復習中
-          </span>
-          <button
-            onClick={clearFilter}
-            className="p-1 text-primary-500 hover:text-primary-700 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {/* カードエリア */}
-      <div className="flex-1 flex flex-col justify-center">
-        {currentItem?.question && (
-          <SwipeCard
-            onSwipeLeft={handleSwipeLeft}
-            onSwipeRight={handleSwipeRight}
-            className="min-h-[400px]"
-          >
-            <div className="flex flex-col h-full">
-              {/* 問題文 */}
-              <div className="mb-4">
-                <p className="text-base font-medium text-neutral-900 leading-relaxed">
-                  {currentItem.question.text}
-                </p>
-              </div>
-
-              {/* 選択肢 */}
-              <div className="space-y-2 mb-4">
-                {currentItem.question.options?.map((option: string, index: number) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border text-sm ${
-                      showAnswer && index === currentItem.question.correctIndex
-                        ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-neutral-200 text-neutral-700"
-                    }`}
-                  >
-                    {String.fromCharCode(65 + index)}. {option}
-                  </div>
-                ))}
-              </div>
-
-              {/* 答え・解説 */}
-              {showAnswer ? (
-                <div className="animate-fade-in border-t border-neutral-200 pt-3">
-                  <p className="text-sm text-neutral-600 leading-relaxed">
-                    {currentItem.question.explanation}
-                  </p>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowAnswer(true)}
-                  className="text-center py-3 text-neutral-400 hover:text-neutral-600 transition-colors border-t border-neutral-200"
-                >
-                  💡 タップで答えを見る
-                </button>
-              )}
-            </div>
-          </SwipeCard>
-        )}
-
-        {/* ボタン */}
-        <div className="flex gap-4 mt-8">
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onClick={handleSwipeLeft}
-          >
-            まだ
-          </Button>
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={handleSwipeRight}
-          >
-            わかった
-          </Button>
-        </div>
-
-        <p className="text-center text-xs text-neutral-400 mt-4">
-          ← スワイプ: まだ　/　スワイプ: わかった →
-        </p>
+      <p className="text-sm text-neutral-500 mb-4">選択肢を選んで回答。正解は「わかった」、不正解は「まだ」に自動で分類されます。</p>
+      <div className="flex items-center gap-3 mb-5">
+        <label className="flex-1 text-sm text-neutral-600">
+          分野
+          <select value={category} disabled={saving || !!result} onChange={(event) => changeCategory(event.target.value)} className="ml-2 max-w-full rounded-lg border border-neutral-200 bg-white p-2">
+            <option value="">すべて</option>
+            {[...new Set([...categories, ...(category ? [category] : [])])].map((name) => <option key={name} value={name}>{name}</option>)}
+          </select>
+        </label>
+        {question && <Button variant="secondary" disabled={saving || !!result} onClick={() => setShowList((value) => !value)}><List className="h-4 w-4 mr-1" />{showList ? "問題に戻る" : "問題一覧"}</Button>}
       </div>
 
-      {/* 分野別成績BottomSheet */}
-      <BottomSheet
-        isOpen={showStats}
-        onClose={() => setShowStats(false)}
-        title="分野別の成績"
-      >
-        <div className="pb-4">
-          <CategoryStatsList
-            stats={categoryStats}
-            onCategoryClick={handleCategoryClick}
-          />
-          {categoryStats.length === 0 && (
-            <p className="text-center text-neutral-400 text-sm py-4">
-              まだ回答履歴がありません
-            </p>
-          )}
+      {!question ? (
+        <div className="py-12 text-center">
+          <Brain className="h-16 w-16 text-primary-500 mx-auto mb-5" />
+          <h2 className="text-xl font-bold text-neutral-900">{solvedCount > 0 ? "すべて「わかった」になったよ！" : "復習する問題はないよ"}</h2>
+          <p className="text-sm text-neutral-500 my-4">{solvedCount > 0 ? "正解した問題を苦手リストから外しました。" : "クイズで間違えた問題や「あとで復習」を押した問題がここに追加されます。"}</p>
+          {category && <Button variant="secondary" onClick={() => changeCategory("")}>すべての分野に戻る</Button>}
+          <Link href="/" className="block mt-5 text-primary-600">ホームに戻る</Link>
         </div>
-      </BottomSheet>
+      ) : showList ? (
+        <div className="space-y-3">
+          {queue?.map((id) => {
+            const item = getQuestionById(id);
+            return item ? <button key={id} className="w-full rounded-xl border border-neutral-200 bg-white p-4 text-left hover:border-primary-400" onClick={() => {
+              setQueue((current) => [id, ...(current ?? []).filter((other) => other !== id)]);
+              setShowList(false);
+            }}><span className="block text-xs text-primary-600 mb-2">{item.category}</span>{item.text}</button> : null;
+          })}
+        </div>
+      ) : (
+        <section className="rounded-2xl bg-white border border-neutral-100 p-5 shadow-card">
+          <p className="text-xs text-primary-600 mb-3">{question.category}</p>
+          <h2 className="text-lg font-medium text-neutral-900 mb-5 leading-relaxed">{question.text}</h2>
+          <div className="space-y-3">
+            {question.options?.map((option, index) => (
+              <button key={`${question.id}-${index}`} disabled={saving || !!result} onClick={() => selectAnswer(index)} className={cn(
+                "w-full rounded-xl border-2 p-4 text-left transition-colors disabled:cursor-default",
+                result && index === question.correctIndex ? "border-success-500 bg-success-50 text-success-700" :
+                result && index === result.selectedIndex ? "border-warning-500 bg-warning-50 text-neutral-800" :
+                "border-neutral-200 text-neutral-700 enabled:hover:border-primary-400"
+              )}>{String.fromCharCode(65 + index)}. {option}</button>
+            ))}
+          </div>
+          {saving && <p role="status" className="mt-4 text-sm text-neutral-500">回答を保存中...</p>}
+          {saveError && <p role="alert" className="mt-4 text-error-600">{saveError}</p>}
+          {result && <div className="mt-6" aria-live="polite">
+            <div className={cn("mb-4 rounded-lg border p-3", result.isCorrect ? "border-success-200 bg-success-50 text-success-700" : "border-error-200 bg-error-50 text-error-700")}>
+              <p className="text-sm font-medium mb-1">あなたの回答（{result.isCorrect ? "○ 正解" : "× 不正解"}）</p>
+              <p className="font-medium">{String.fromCharCode(65 + result.selectedIndex)}. {question.options?.[result.selectedIndex]}</p>
+            </div>
+            <h3 className={cn("text-lg font-bold", result.isCorrect ? "text-success-600" : "text-warning-600")}>{result.isCorrect ? "○ 正解！ わかった" : "× 不正解 まだ"}</h3>
+            <p className="text-sm text-neutral-600 mt-2">{result.isCorrect ? "苦手リストから外しました。" : "苦手リストに残しました。あとでもう一度出題します。"}</p>
+            {!result.isCorrect && (
+              <div className="mt-4 rounded-lg border border-success-200 bg-success-50 p-3 text-success-700">
+                <p className="text-sm font-medium mb-1">正しい答え（○ 正解）</p>
+                <p className="font-medium">{String.fromCharCode(65 + question.correctIndex)}. {question.options?.[question.correctIndex]}</p>
+              </div>
+            )}
+            <p className="text-sm text-neutral-600 mt-2 leading-relaxed">{question.explanation}</p>
+            <Button fullWidth className="mt-5" onClick={nextQuestion}>{remainingCount === 0 ? "復習を終える" : queue?.length === 1 && !result.isCorrect ? "もう一度解く" : "次の問題へ"}</Button>
+          </div>}
+        </section>
+      )}
     </div>
   );
 }

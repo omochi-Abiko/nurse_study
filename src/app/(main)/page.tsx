@@ -11,6 +11,7 @@ import { FeatureCard, ActionCard, StatCard } from "@/components/ui/card";
 import { DailyProgress } from "@/components/ui/progress";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { ResumeQuiz } from "@/components/ui/resume-quiz";
 import { MenuButton } from "@/components/ui/menu";
 import { ExamCountdown } from "@/components/ui/countdown";
 import { Mood } from "@/types";
@@ -62,10 +63,9 @@ export default function HomePage() {
   const getProgress = useAppStore((state) => state.getProgress);
   const startQuizSession = useAppStore((state) => state.startQuizSession);
 
-  // 解剖学（1年生）51問だけを出題順ランダムで開始
+  // 解剖学の問題集を選ぶ
   const handleStartAnatomy = () => {
-    startQuizSession(["解剖学（1年生）"], 0, "category");
-    router.push("/quiz/session");
+    router.push("/quiz/anatomy");
   };
 
   // 生理学（1年生）だけを出題順ランダムで開始
@@ -168,6 +168,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-8">
+      <div className="px-4"><ResumeQuiz /></div>
       {/* ヒーローセクション */}
       <div className={`bg-gradient-to-br ${getTimeBasedGradient()} px-4 pt-4 pb-6`}>
         {/* ヘッダー */}
@@ -235,15 +236,15 @@ export default function HomePage() {
             />
           </Link>
 
-          {/* 解剖学（1年生）51問だけ */}
+          {/* 解剖学（1年生）の問題集 */}
           <div onClick={handleStartAnatomy} className="block animate-slide-up-3 cursor-pointer">
             <FeatureCard
               icon={<Bone className="h-7 w-7 text-white" />}
               title="解剖学（1年生）"
-              description="1年生の解剖学51問に挑戦（順番・選択肢はランダム）"
-              action="始める"
+              description="ポイントチェック・期末から問題集を選んで挑戦"
+              action="問題集を選ぶ"
               variant="accent"
-              badge="51問"
+              badge={`${questions.filter((q) => q.category === "解剖学（1年生）").length}問`}
             />
           </div>
 

@@ -2,6 +2,7 @@ import { Question, StudentGrade } from "@/types";
 import { physiologyQuestions } from "./physiology";
 import { careEnvironmentQuestions } from "./care-environment";
 import { mentalHealthQuestions } from "./mental-health";
+import { anatomyFinalQuestions } from "./anatomy-final";
 
 // カテゴリ一覧
 export const questionCategories = [
@@ -1524,6 +1525,7 @@ export const questions: Question[] = [
   // ========================================
   // 生理学（前半）認定試験・全70問
   // ========================================
+  ...anatomyFinalQuestions,
   ...physiologyQuestions,
 
   // ========================================

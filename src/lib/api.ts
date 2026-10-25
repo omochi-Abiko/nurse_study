@@ -21,6 +21,7 @@ import {
   type LocalWeakQuestion,
 } from "@/lib/local-db";
 import { calculateNextReview, type AnswerQuality } from "@/lib/spaced-repetition";
+import { getQuestionById } from "@/data/questions";
 
 // ========== Quiz API ==========
 
@@ -79,6 +80,22 @@ export const quizApi = {
 // ========== Weak Questions API ==========
 
 export const weakApi = {
+  // 選択した回答を採点し、正解だけを苦手リストから外す。
+  async answerWeakQuestion(questionId: string, selectedIndex: number) {
+    const question = getQuestionById(questionId);
+    if (!question?.options || !Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= question.options.length) {
+      throw new Error("問題または選択肢が見つかりません。");
+    }
+    const isCorrect = selectedIndex === question.correctIndex;
+    const { answer } = await quizApi.recordAnswer({ questionId, selectedIndex, isCorrect, category: question.category });
+    if (isCorrect) {
+      await weakApi.removeWeakQuestion(questionId);
+    } else {
+      await weakApi.reviewWeakQuestion(questionId);
+    }
+    return { answer, ...getWeakQuestionsData() };
+  },
+
   // 苦手問題一覧を取得
   async getWeakQuestions() {
     return getWeakQuestionsData();

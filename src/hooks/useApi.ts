@@ -15,6 +15,7 @@ import {
 } from "@/lib/api";
 import { TOTAL_SKILLS } from "@/data/freshman-skills";
 import type { AnswerQuality } from "@/lib/spaced-repetition";
+import { useAppStore } from "@/store";
 
 // ========== 苦手問題 hooks ==========
 
@@ -38,6 +39,21 @@ export function useWeakQuestions() {
 
   return {
     weakQuestions: data?.weakQuestions || [],
+    answerWeakQuestion: async (questionId: string, selectedIndex: number) => {
+      const result = await weakApi.answerWeakQuestion(questionId, selectedIndex);
+      useAppStore.setState((state) => ({
+        answerHistory: [...state.answerHistory, result.answer],
+        weakQuestions: result.weakQuestions.map((item) => ({
+          questionId: item.questionId,
+          addedAt: item.addedAt,
+          reviewCount: item.reviewCount,
+          lastReviewedAt: item.lastReviewedAt ?? undefined,
+        })),
+      }));
+      await mutate(SWR_KEYS.WEAK_QUESTIONS, { weakQuestions: result.weakQuestions }, false);
+      void mutate(SWR_KEYS.STATS);
+      return result.answer;
+    },
     isLoading,
     error,
     addWeakQuestion,

@@ -46,7 +46,7 @@ interface AppState {
   // カスタムクイズセッション
   // ========================================
   currentQuizSession: QuizSession | null;
-  startQuizSession: (categories: string[], count: number, mode: QuizSession["mode"]) => void;
+  startQuizSession: (categories: string[], count: number, mode: QuizSession["mode"], questionIds?: string[]) => void;
   answerQuizSession: (questionId: string, selectedIndex: number, isCorrect: boolean) => void;
   completeQuizSession: () => void;
   clearQuizSession: () => void;
@@ -247,7 +247,7 @@ export const useAppStore = create<AppState>()(
       // ========================================
       currentQuizSession: null,
 
-      startQuizSession: (categories, count, mode) => {
+      startQuizSession: (categories, count, mode, questionIds) => {
         // カテゴリでフィルタリング
         let filteredQuestions = [...questions];
 
@@ -277,6 +277,12 @@ export const useAppStore = create<AppState>()(
           filteredQuestions = [...filteredQuestions, ...filteredCustom];
         }
 
+        // 問題集を指定したときは、その問題だけを出題する。
+        if (questionIds) {
+          const allowedIds = new Set(questionIds);
+          filteredQuestions = filteredQuestions.filter((q) => allowedIds.has(q.id));
+        }
+
         // シャッフル（Fisher-Yatesで偏りなく並べ替え）
         const shuffled = [...filteredQuestions];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -300,7 +306,8 @@ export const useAppStore = create<AppState>()(
 
       answerQuizSession: (questionId, selectedIndex, isCorrect) => {
         const session = get().currentQuizSession;
-        if (!session) return;
+        if (!session || session.completed || !session.questionIds.includes(questionId) ||
+            session.answers.some((answer) => answer.questionId === questionId)) return;
 
         const question = getQuestionById(questionId) || get().customQuestions.find((q) => q.id === questionId);
         const newAnswer: QuizAnswer = {
@@ -800,6 +807,7 @@ export const useAppStore = create<AppState>()(
     {
       name: "nurse-study-storage",
       partialize: (state) => ({
+        currentQuizSession: state.currentQuizSession,
         dailyQuiz: state.dailyQuiz,
         answerHistory: state.answerHistory,
         weakQuestions: state.weakQuestions,
