@@ -317,9 +317,9 @@ export default function QuizSessionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+<div className={cn("quiz-screen flex flex-col", quizState === "question" && "quiz-screen-question")}>
       {/* ヘッダー */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+<header className="quiz-header flex items-center justify-between px-4 py-3 border-b border-neutral-100">
         <button
           onClick={handleClose}
           className="p-2 -ml-2 text-neutral-400 hover:text-neutral-600 transition-colors tap-target"
@@ -351,7 +351,7 @@ export default function QuizSessionPage() {
       </header>
 
       {/* 問題/結果表示 */}
-      <div className="flex-1 flex flex-col px-4 py-6">
+<div className="quiz-content flex-1 flex flex-col px-4 py-6">
         {quizState === "question" ? (
           <>
             {/* カテゴリ表示 */}
@@ -362,14 +362,14 @@ export default function QuizSessionPage() {
             </div>
 
             {/* 問題文 */}
-            <div className="flex-1 flex items-center justify-center">
+<div className="quiz-prompt flex-1 flex items-center justify-center">
               <p className="text-xl font-medium text-neutral-900 text-center leading-relaxed">
                 {currentQuestion.text}
               </p>
             </div>
 
             {/* 選択肢（ランダムに並べ替え済み） */}
-            <div className="space-y-3 mt-auto">
+            <div className="quiz-options grid gap-3 mt-auto">
               {shuffledOptions.map((option, index) => (
                 <button
                   key={index}

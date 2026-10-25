@@ -50,6 +50,32 @@
 }
 
 @layer components {
+  /* Use the visible viewport without space reserved for the hidden tab bar. */
+  body:has(.quiz-screen),
+  .pb-safe:has(.quiz-screen) { min-height: 100dvh; }
+  .pb-safe:has(.quiz-screen) { padding-bottom: 0; }
+  .quiz-screen {
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  @media (max-width: 639px) {
+    .quiz-screen-question .quiz-header { flex-shrink: 0; padding-block: 4px; }
+    .quiz-screen-question .quiz-content { flex: none; gap: 12px; padding: 12px; }
+    .quiz-screen-question .quiz-content > .mb-4 { margin-bottom: 0; }
+    .quiz-screen-question .quiz-prompt { flex: none; justify-content: flex-start; }
+    .quiz-screen-question .quiz-prompt p { font-size: 18px; line-height: 1.45; text-align: left; }
+    .quiz-screen-question .quiz-options { display: grid; gap: 6px; margin-top: 0; }
+    .quiz-screen-question .quiz-options > button {
+      min-height: 44px;
+      margin-top: 0;
+      padding: 8px 10px;
+      font-size: 14px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+  }
+
   /* タップ可能な要素の最小サイズ保証 */
   .tap-target {
     @apply min-h-[44px] min-w-[44px];

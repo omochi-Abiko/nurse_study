@@ -244,9 +244,9 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+<div className={cn("quiz-screen flex flex-col", quizState === "question" && "quiz-screen-question")}>
       {/* ヘッダー */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+<header className="quiz-header flex items-center justify-between px-4 py-3 border-b border-neutral-100">
         <button
           onClick={handleClose}
           className="p-2 -ml-2 text-neutral-400 hover:text-neutral-600 transition-colors tap-target"
@@ -254,7 +254,10 @@ export default function QuizPage() {
         >
           <X className="h-6 w-6" />
         </button>
-        <ProgressDots total={3} current={currentIndex + (quizState === "result" ? 1 : 0)} />
+        <div className="flex flex-col items-center gap-1">
+          <ProgressDots total={3} current={currentIndex + (quizState === "result" ? 1 : 0)} />
+          <p className="text-xs font-medium text-neutral-600">{currentIndex + 1} / 3</p>
+        </div>
         <div className="flex items-center gap-1">
           <VoiceControl
             onSpeak={quizState === "question" ? speakQuestion : speakExplanation}
@@ -270,18 +273,18 @@ export default function QuizPage() {
       </header>
 
       {/* 問題/結果表示 */}
-      <div className="flex-1 flex flex-col px-4 py-6">
+<div className="quiz-content flex-1 flex flex-col px-4 py-6">
         {quizState === "question" ? (
           <>
             {/* 問題文 */}
-            <div className="flex-1 flex items-center justify-center">
+<div className="quiz-prompt flex-1 flex items-center justify-center">
               <p className="text-xl font-medium text-neutral-900 text-center leading-relaxed">
                 {currentQuestion.text}
               </p>
             </div>
 
             {/* 選択肢 */}
-            <div className="space-y-3 mt-auto">
+            <div className="quiz-options grid gap-3 mt-auto">
               {currentQuestion.options?.map((option, index) => (
                 <button
                   key={index}

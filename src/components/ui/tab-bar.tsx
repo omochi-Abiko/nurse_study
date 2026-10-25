@@ -30,7 +30,7 @@ export function TabBar() {
   const pathname = usePathname();
 
   // Quiz画面では非表示（集中モード）
-  if (pathname.startsWith("/quiz/")) {
+  if (pathname === "/quiz" || pathname.startsWith("/quiz/")) {
     return null;
   }
 
