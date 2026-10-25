@@ -1,7 +1,7 @@
 import { Question } from "@/types";
 
 // 問題文: 添付の2025年度解剖学認定試験問題用紙 No.1〜14。
-// 正解: 添付の解答用紙（表題は2022年度）を採用。問題用紙の手書きの丸は使用しない。
+// 正解: 添付の解答用紙（表題は2022年度）を採用。問54はユーザー指定で3に変更。
 // 配列の順番が原本の問1〜70に対応する。
 const answerKey = [
   1, 4, 4, 3, 3, 5, 2, 3, 1, 1,
@@ -9,7 +9,7 @@ const answerKey = [
   5, 3, 1, 2, 4, 3, 1, 2, 1, 3,
   3, 1, 5, 3, 1, 1, 1, 1, 2, 1,
   3, 4, 3, 3, 5, 5, 2, 1, 5, 5,
-  4, 3, 1, 4, 2, 1, 1, 2, 2, 3,
+  4, 3, 1, 3, 2, 1, 1, 2, 2, 3,
   3, 5, 2, 4, 5, 1, 2, 4, 1, 4,
 ];
 
@@ -92,7 +92,9 @@ export const anatomyFinalQuestions: Question[] = items.map(([text, options], ind
   type: "choice",
   options,
   correctIndex: answerKey[index] - 1,
-  explanation: `正解は「${options[answerKey[index] - 1]}」。添付の解答用紙・問${index + 1}の解答（${answerKey[index]}）に基づきます。`,
+  explanation: index === 53
+    ? `この問題集では、ご指定により選択肢3「${options[2]}」を正解として登録しています。`
+    : `正解は「${options[answerKey[index] - 1]}」。添付の解答用紙・問${index + 1}の解答（${answerKey[index]}）に基づきます。`,
   category: "解剖学（1年生）",
   source: `解剖学 期末・問${index + 1}（問題用紙：2025年度／解答用紙：2022年度）`,
   examYear: 2025,
